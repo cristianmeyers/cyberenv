@@ -50,14 +50,6 @@ sudo ip link set enp0s8 up  # attention au nom de l'interface !!
 
 Plus qu'a vérifier avec `ip a` pour confirmer l'existance d'une addresses IP, et `ping 8.8.8.8` pour tester la connexion internet
 
-**On configure le dhcp pour ecouter sur son interface**
-
-```bash
-nano /etc/default/isc-dhcp-server
-```
-
-Sur la ligne interface on lui fait écouter l'interface `INTERFACESv4="enp0s8"`
-
 ## Services
 
 On aura besoin de telecharger le service `isc-dhcp-server` pour créer le seveur DHCP, de le lancer, et l'activer !
@@ -69,6 +61,14 @@ sudo systemctl start isc-dhcp-server
 sudo systemctl enable isc-dhcp-server
 sudo systemctl status isc-dhcp-server
 ```
+
+**On configure le dhcp pour ecouter sur son interface**
+
+```bash
+nano /etc/default/isc-dhcp-server
+```
+
+Sur la ligne interface on lui fait écouter l'interface `INTERFACESv4="enp0s8"`
 
 > **Note** : à chaque changement sur le fichier dhcp.conf faut redemarer le service et verifier son état ! un script le fera.
 
