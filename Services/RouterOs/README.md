@@ -2,10 +2,6 @@
 
 Pour ce lab, le routeur utilisé sera un **Mikrotik**. Il aura pour rôle de gérer les **connexions inter-VLAN** ainsi que la **sortie vers Internet**.
 
----
-
-## Configuration
-
 Pour se connecter au routeur, deux méthodes sont possibles :
 
 - Avec un **câble console** via l’outil `Winbox`.
