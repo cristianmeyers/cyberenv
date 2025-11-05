@@ -21,7 +21,7 @@ avec cette information on peut deternminer le nom de ml'interface, son etat : `U
 - **Etat** : `Down`
 - **IP** : vide
 
-Maintenant faut conecter le seveur a internet via cette interface, je prend enp0s8 comme exemple. pour cela, deux moyen, activer le dhcp, ou utiliser une addresse physique. Dans notre cas, l'option 1 es plus adapté.
+Maintenant faut conecter le seveur a internet via cette interface, je prend enp0s3 comme exemple. pour cela, deux moyen, activer le dhcp, ou utiliser une addresse physique. Dans notre cas, l'option 1 es plus adapté.
 
 ```bash
 sudo nano /etc/netplan/00-installer-config.yaml
@@ -71,10 +71,10 @@ nano /etc/default/isc-dhcp-server
 Modifie la ligne pour écouter sur l’interface physique **ET** les sous-interfaces VLAN :
 
 ```bash
-INTERFACESv4="enp0s8 enp0s8.10 enp0s8.20 enp0s8.30"
+INTERFACESv4="enp0s3.10 enp0s3.20 enp0s3.30"
 ```
 
-> Pourquoi ? <br> > **enp0s8** → capte les requêtes non taguées (si besoin)<br> > **enp0s8**.10, .20, .30 → capte les requêtes taguées **802.1Q** des VLANs
+> Pourquoi ? <br> > **enp0s3** → capte les requêtes non taguées (si besoin)<br> > **enp0s3**.10, .20, .30 → capte les requêtes taguées **802.1Q** des VLANs
 
 ```bash
 sudo systemctl start isc-dhcp-server
@@ -84,67 +84,76 @@ sudo systemctl status isc-dhcp-server
 
 ## Création des VLANs sur l’interface trunk
 
-On va maintenant **déclarer les sous-interfaces VLAN** sur `enp0s8` pour que le serveur DHCP puisse **recevoir les requêtes taguées** des VLANs 10, 20 et 30.
+On va maintenant **déclarer les sous-interfaces VLAN** sur `enp0s3` pour que le serveur DHCP puisse **recevoir les requêtes taguées** des VLANs 10, 20 et 30.
 
 ### Étape 1 : Créer les sous-interfaces VLAN
 
 ```bash
 # VLAN 10 - Serveurs
-sudo ip link add link enp0s8 name enp0s8.10 type vlan id 10
+sudo ip link add link enp0s3 name enp0s3.10 type vlan id 10
 
 # VLAN 20 - Backup
-sudo ip link add link enp0s8 name enp0s8.20 type vlan id 20
+sudo ip link add link enp0s3 name enp0s3.20 type vlan id 20
 
 # VLAN 30 - IT
-sudo ip link add link enp0s8 name enp0s8.30 type vlan id 30
+sudo ip link add link enp0s3 name enp0s3.30 type vlan id 30
 ```
 
-### Étape 2 : Activer les VLANs
+##3Étape 2 : Activer les VLANs
 
 ```bash
-sudo ip link set enp0s8.10 up
-sudo ip link set enp0s8.20 up
-sudo ip link set enp0s8.30 up
+sudo ip link set enp0s3.10 up
+sudo ip link set enp0s3.20 up
+sudo ip link set enp0s3.30 up
 ```
 
-### Étape 3 : Vérifier
+### Étape 3 : Donner une addresse ip au interfaces
 
 ```bash
-ip -br a | grep enp0s8
+sudo ip addr add 192.168.10.1/24 dev enp0s3.10
+sudo ip addr add 192.168.20.1/24 dev enp0s3.20
+sudo ip addr add 192.168.30.1/24 dev enp0s3.30
+```
+
+### Étape 4 : Vérifier
+
+```bash
+ip -br a | grep enp0s3
 ```
 
 > Aucune IP sur les VLANs → normal (la passerelle est sur le MikroTik)
 
-### Étape 4 : Rendre les VLANs persistants (après reboot)
+### Étape 5 : Rendre les VLANs persistants (après reboot)
 
 ```bash
-sudo nano /etc/systemd/network/99-vlans.netdev
+sudo nano /etc/netplan/01-vlans.yaml
 ```
 
 Remplir le fichier avec:
 
 ```bash
-[NetDev]
-Name=enp0s8.10
-Kind=vlan
-
-[VLAN]
-Id=10
-
-[NetDev]
-Name=enp0s8.20
-Kind=vlan
-
-[VLAN]
-Id=20
-
-[NetDev]
-Name=enp0s8.30
-Kind=vlan
-
-[VLAN]
-Id=30
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s3:
+      dhcp4: no
+  vlans:
+    enp0s3.10:
+      id: 10
+      link: enp0s3
+      addresses: [192.168.10.1/24]
+    enp0s3.20:
+      id: 20
+      link: enp0s3
+      addresses: [192.168.20.1/24]
+    enp0s3.30:
+      id: 30
+      link: enp0s3
+      addresses: [192.168.30.1/24]
 ```
+
+> \*\*ATTENTION: Les clients doivent, être connecté à l'interface vlan ! ex : enp0s3.30
 
 ```bash
 # Appliquer et redemarer le DHCP
@@ -152,6 +161,59 @@ sudo systemctl restart systemd-networkd
 sudo systemctl restart isc-dhcp-server
 ```
 
+> Refaire ces opérations pour chaque vlan supplémentaire
+
 ---
 
 # Configuration
+
+A ce stade nous avons configué le DHCP sur les bonnes interfaces, ajouté des vlans, et donné un accès internet **temporaire** su DHCP afin de mettre en place les services. Maintenant on configurera le fichier de configuration.
+
+**Pour ce faire, on configure le fichier avec la commande suivante :**
+
+```bash
+sudo nano /etc/dhcp/dhcpd.conf
+```
+
+**Ici on declare les vlans, le DNS et la passerelle**
+
+```text
+# =============================================
+# ISC-DHCP-SERVER - Lab
+# =============================================
+
+# Options globales
+default-lease-time 86400;      # 24h
+max-lease-time 172800;         # 48h
+authoritative;
+option domain-name "lab.local";
+option domain-name-servers 8.8.8.8, 1.1.1.1;
+
+# =============================================
+# VLAN 10 - Serveurs
+# =============================================
+subnet 192.168.10.0 netmask 255.255.255.0 {
+  range 192.168.10.100 192.168.10.200;
+  option routers 192.168.10.1;
+  option broadcast-address 192.168.10.255;
+}
+
+# =============================================
+# VLAN 20 - Backup
+# =============================================
+subnet 192.168.20.0 netmask 255.255.255.0 {
+  range 192.168.20.100 192.168.20.200;
+  option routers 192.168.20.1;
+  option broadcast-address 192.168.20.255;
+}
+
+# =============================================
+# VLAN 30 - IT
+# =============================================
+subnet 192.168.30.0 netmask 255.255.255.0 {
+  range 192.168.30.100 192.168.30.200;
+  option routers 192.168.30.1;
+  option broadcast-address 192.168.30.255;
+}
+
+```
