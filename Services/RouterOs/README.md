@@ -106,29 +106,97 @@ Cela permet aussi aux clients internes d’utiliser le routeur comme **DNS relay
 
 ---
 
-## Configuration LAN
+## Configuration VLAN
 
-Attribuer une adresse IP locale pour le réseau interne (exemple VLAN 10 - Serveurs) :
+Les `VLANs` passeront par le même câble et donc utiliseront le mode trunk, facilitant ainsi la gestion. Pour ce faire il faut declarer un bride contenant les differents `VLANs`.
 
 ```bash
-/ip address add address=10.10.10.1/24 interface=ether2 comment="LAN - Serveurs"
+/interface bridge add name=bridge-vlans
 ```
 
-On répète cette opération pour les autres VLANs si nécessaire :
+**On supprime l'ip de l'interface voulue et on ajoute ce bridge à l'interface**
 
 ```bash
-/ip address add address=10.10.20.1/24 interface=ether3 comment="LAN - Backup"
-/ip address add address=10.10.30.1/24 interface=ether4 comment="LAN - IT"
+/ip address remove [find interface=ether2]
+/interface bridge port add bridge=bridge-vlans interface=ether2
+```
+
+**Maintenant on peut creer les `VLANs` spécifiques**
+
+```bash
+/interface vlan add name=VLAN10 vlan-id=10  interface=bridge-vlans
+/interface vlan add name=VLAN20 vlan-id=20  interface=bridge-vlans
+/interface vlan add name=VLAN30 vlan-id=30  interface=bridge-vlans
+```
+
+**On ajoute une `IP` à chaque vlan et un commentaire pour la getion:**
+
+```bash
+/ip address add address=192.168.10.1/24 interface=VLAN10 comment="Serveurs"
+/ip address add address=192.168.20.1/24 interface=VLAN20 comment="Backup"
+/ip address add address=192.168.30.1/24 interface=VLAN30 comment="IT"
+```
+
+> Ces addreces seront la passerelle de chaque VLAN déclaré dans le **DHCP**.
+
+**Maintenant op peut activer le `Tagging 802.1Q` sur le câble Trunk**
+
+```bash
+/interface bridge vlan add bridge=bridge-vlans vlan-ids=10 tagged=ether2
+/interface bridge vlan add bridge=bridge-vlans vlan-ids=20 tagged=ether2
+/interface bridge vlan add bridge=bridge-vlans vlan-ids=30 tagged=ether2
+```
+
+> On répète cette opération pour les d'autres **VLANs** si nécessaire.
+
+**On vérifie la configuration et la sortie attendue**
+
+```bash
+/interface bridge print
+/interface bridge port print
+```
+
+Sortie
+
+```text
+# NAME          ADMIN-MAC         AGE
+0 bridge-vlans  XX:XX:XX:XX:XX:XX  0
+
+# INTERFACE  BRIDGE
+0 ether2     bridge-vlans
+```
+
+Et les adresses **IP**
+
+```bash
+/interface vlan print
+/ip address print
+```
+
+Sortie
+
+```text
+Columns: NAME, MTU, ARP, VLAN-ID, INTERFACE
+#   NAME     MTU  ARP      VLAN-ID  INTERFACE
+0 R VLAN10  1500  enabled       10  bridge-vlans
+1 R VLAN20  1500  enabled       20  bridge-vlans
+2 R VLAN30  1500  enabled       30  bridge-vlans
+
+# ADDRESS             NETWORK          INTERFACE
+0 10.0.2.15/24        10.0.2.0         WAN
+1 192.168.10.1/24     192.168.10.0     VLAN10
+2 192.168.20.1/24     192.168.20.0     VLAN20
+3 192.168.30.1/24     192.168.30.0     VLAN30
 ```
 
 ---
 
-## Configuration du NAT (Sortie Internet)
+## Configuration du NAT (Sortie Internet) à revoir
 
 Afin que les machines internes puissent accéder à Internet, il faut configurer la **traduction d’adresses** (NAT) :
 
 ```bash
-/ip firewall nat add chain=srcnat out-interface=ether1 action=masquerade
+/ip firewall nat add chain=srcnat out-interface=WAN action=masquerade
 ```
 
 Cette règle permet à tout le trafic sortant du LAN vers le WAN d’utiliser l’adresse IP publique du routeur.
