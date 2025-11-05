@@ -50,26 +50,108 @@ sudo ip link set enp0s8 up  # attention au nom de l'interface !!
 
 Plus qu'a vérifier avec `ip a` pour confirmer l'existance d'une addresses IP, et `ping 8.8.8.8` pour tester la connexion internet
 
+---
+
 ## Services
 
-On aura besoin de telecharger le service `isc-dhcp-server` pour créer le seveur DHCP, de le lancer, et l'activer !
+On va installer `isc-dhcp-server`, le configurer pour **écouter sur l’interface trunk + VLANs**, puis le lancer et le surveiller.
 
 ```bash
+# Mise à jour + installation
 sudo apt update -y
-sudo apt install isc-dhcp-server
-sudo systemctl start isc-dhcp-server
-sudo systemctl enable isc-dhcp-server
-sudo systemctl status isc-dhcp-server
+sudo apt install isc-dhcp-server -y
 ```
 
-**On configure le dhcp pour ecouter sur son interface**
+**Configuration des interfaces d’écoute**
 
 ```bash
 nano /etc/default/isc-dhcp-server
 ```
 
-Sur la ligne interface on lui fait écouter l'interface `INTERFACESv4="enp0s8"`
+Modifie la ligne pour écouter sur l’interface physique **ET** les sous-interfaces VLAN :
 
-> **Note** : à chaque changement sur le fichier dhcp.conf faut redemarer le service et verifier son état ! un script le fera.
+```bash
+INTERFACESv4="enp0s8 enp0s8.10 enp0s8.20 enp0s8.30"
+```
 
-## Scripts et aliass
+> Pourquoi ? <br> > **enp0s8** → capte les requêtes non taguées (si besoin)<br> > **enp0s8**.10, .20, .30 → capte les requêtes taguées **802.1Q** des VLANs
+
+```bash
+sudo systemctl start isc-dhcp-server
+sudo systemctl enable isc-dhcp-server
+sudo systemctl status isc-dhcp-server
+```
+
+## Création des VLANs sur l’interface trunk
+
+On va maintenant **déclarer les sous-interfaces VLAN** sur `enp0s8` pour que le serveur DHCP puisse **recevoir les requêtes taguées** des VLANs 10, 20 et 30.
+
+### Étape 1 : Créer les sous-interfaces VLAN
+
+```bash
+# VLAN 10 - Serveurs
+sudo ip link add link enp0s8 name enp0s8.10 type vlan id 10
+
+# VLAN 20 - Backup
+sudo ip link add link enp0s8 name enp0s8.20 type vlan id 20
+
+# VLAN 30 - IT
+sudo ip link add link enp0s8 name enp0s8.30 type vlan id 30
+```
+
+### Étape 2 : Activer les VLANs
+
+```bash
+sudo ip link set enp0s8.10 up
+sudo ip link set enp0s8.20 up
+sudo ip link set enp0s8.30 up
+```
+
+### Étape 3 : Vérifier
+
+```bash
+ip -br a | grep enp0s8
+```
+
+> Aucune IP sur les VLANs → normal (la passerelle est sur le MikroTik)
+
+### Étape 4 : Rendre les VLANs persistants (après reboot)
+
+```bash
+sudo nano /etc/systemd/network/99-vlans.netdev
+```
+
+Remplir le fichier avec:
+
+```bash
+[NetDev]
+Name=enp0s8.10
+Kind=vlan
+
+[VLAN]
+Id=10
+
+[NetDev]
+Name=enp0s8.20
+Kind=vlan
+
+[VLAN]
+Id=20
+
+[NetDev]
+Name=enp0s8.30
+Kind=vlan
+
+[VLAN]
+Id=30
+```
+
+```bash
+# Appliquer et redemarer le DHCP
+sudo systemctl restart systemd-networkd
+sudo systemctl restart isc-dhcp-server
+```
+
+---
+
+# Configuration
