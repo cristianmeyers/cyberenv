@@ -144,3 +144,41 @@ Ces services peuvent être virtualisés (VMs dédiées) ou conteneurisés selon 
 - **Accès contrôlé** : comptes temporaires, logs d’accès, audit des actions sensibles.
 - **Procédure d’incident** : documentée dans `SECURITY_POLICY.md`.
 - **Normes** : respect du cadre légal, `RGPD` et `Godfrain`.
+
+---
+
+## Distribution des services :
+
+### Serveur 1 :
+
+**Nom :** siodhcp <br>
+**OS :** Ubuntu serveur <br>
+**Vlan :** 10 ( srv ) <br>
+**Type :** Physique <br>
+**Services :**
+
+- DHCP
+- DNS
+
+### Serveur 2 :
+
+**Nom :** siovirt <br>
+**OS :** Proxmox <br>
+**Vlan :** 10 ( srv ) <br>
+**Type :** Physique <br>
+**Services :**
+
+- Ubuntu Server
+- Windows Server
+
+### Serveur 3 :
+
+**Nom :** siovirt <br>
+**OS :** Ubuntu serveur <br>
+**Vlan :** 10 ( srv ) <br>
+**Type :** VM <br>
+**Services :**
+
+- Active Directory (Linux)
+- GLPI
+- OpenVPN

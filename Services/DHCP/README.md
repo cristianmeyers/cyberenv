@@ -217,3 +217,32 @@ subnet 192.168.30.0 netmask 255.255.255.0 {
 }
 
 ```
+
+---
+
+# Update DDNS
+
+### Étape 1 : Confi
+
+```bash
+sudo rndc-confgen -a -b 512 -k DHCP_UPDATE
+sudo cp /etc/bind/rndc.key /etc/dhcp/ddns.key
+sudo chown root:dhcpd /etc/dhcp/ddns.key 2>/dev/null || sudo chown root:bind /etc/dhcp/ddns.key
+sudo chmod 640 /etc/dhcp/ddns.key
+ls -l /etc/dhcp/ddns.key
+```
+
+```text
+-rw-r-----. 1 root dhcpd 130 Nov 12 10:08 /etc/dhcp/ddns.key
+```
+
+```bash
+sudo systemctl restart isc-dhcp-server
+sudo systemctl status isc-dhcp-server
+```
+
+verif
+
+```bash
+sudo dhcpd -t -cf /etc/dhcp/dhcpd.conf
+```
