@@ -1,0 +1,30 @@
+# ==================================================================
+# ALIASES POUR LE LAB DHCP + DNS (sio.lan) – novembre 2025
+# Copie le contenu du fichier dans ~/.bashrc puis : source ~/.bashrc
+# ==================================================================
+
+# ---- État rapide du DHCP ----
+alias dhcp-statut='sudo systemctl status isc-dhcp-server --no-pager'
+alias dhcp-restart='sudo systemctl restart isc-dhcp-server && sudo systemctl status isc-dhcp-server --no-pager'
+alias dhcp-log='sudo journalctl -u isc-dhcp-server -f'
+alias dhcp-edit='sudo nano /etc/dhcp/dhcpd.conf'
+
+# ---- Vérifier la configuration DHCP ----
+alias dhcp-check='sudo dhcpd -t -cf /etc/dhcp/dhcpd.conf'
+
+# ---- Clients connectés (IP attribuées) ----
+alias dhcp-clients='sudo cat /var/lib/dhcp/dhcpd.leases | grep -E "hardware ethernet|lease|binding state" | grep -v "^#"'
+
+
+# ---- IP et réseau ----
+alias ips='ip -4 -br addr show'
+alias route='ip route'
+alias pping='ping -c 3 8.8.8.8'
+alias pingg='ping -c 3 google.com'
+
+# ---- Raccourcis utiles ----
+alias reboot='sudo reboot'
+alias shutdown='sudo shutdown -h now'
+
+# ----- Variables Globales -----
+export conf="/etc/dhcp/dhcpd.conf"
