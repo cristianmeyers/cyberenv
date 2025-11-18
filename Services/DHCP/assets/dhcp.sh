@@ -51,7 +51,7 @@ max-lease-time 172800;
 authoritative;
 
 option domain-name "sio.lan";
-option domain-name-servers 192.168.10.1;
+option domain-name-servers 192.168.10.2;
 
 # Baux statiques (exemple)
 # group "Serveurs" {
@@ -66,7 +66,7 @@ option domain-name-servers 192.168.10.1;
 # =============================================
 subnet 192.168.10.0 netmask 255.255.255.0 {
     range 192.168.10.100 192.168.10.200;
-    option routers 192.168.10.1;
+    option routers 192.168.10.2;
     option broadcast-address 192.168.10.255;
 }
 
