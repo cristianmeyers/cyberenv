@@ -7,6 +7,7 @@
 alias dhcp-statut='sudo systemctl status isc-dhcp-server --no-pager'
 alias dhcp-restart='sudo systemctl restart isc-dhcp-server && sudo systemctl status isc-dhcp-server --no-pager'
 alias dhcp-log='sudo journalctl -u isc-dhcp-server -f'
+alias dhcp-syslog='sudo tail -f /var/log/syslog | grep dhcp'
 alias dhcp-edit='sudo nano /etc/dhcp/dhcpd.conf'
 
 # ---- Vérifier la configuration DHCP ----

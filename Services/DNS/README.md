@@ -200,3 +200,265 @@ sudo systemctl restart isc-dhcp-server
 - Toutes les zones (directes et inverses) sont gérées **automatiquement par DHCP/DDNS**.
 - Les fichiers de zones sont créés vides ou avec le strict minimum (SOA + NS).
 - Le DHCP attribue les IP et met à jour Bind via DDNS.
+
+---
+
+# DNS Documentation : Intégration DHCP–BIND avec mises à jour dynamiques (DDNS)
+
+## 1. Objectif
+
+Ce document décrit la procédure complète pour configurer un serveur ISC DHCP et un serveur DNS BIND9 afin de permettre les mises à jour dynamiques sécurisées (DDNS). Le DHCP pourra ainsi ajouter, mettre à jour et supprimer automatiquement les enregistrements DNS directs (A) et inverses (PTR).
+
+La configuration utilise une clé TSIG HMAC‑SHA256 pour sécuriser les échanges entre DHCP et BIND.
+
+---
+
+## 2. Création de la clé TSIG
+
+La clé TSIG est utilisée par le serveur DHCP pour authentifier les mises à jour envoyées à BIND.
+
+### Commande de génération
+
+```bash
+tskeygen -a hmac-sha256 dhcp-update-key
+```
+
+### Exemple de sortie
+
+```conf
+key "dhcp-update-key" {
+    algorithm hmac-sha256;
+    secret "5z31HPwmqmbSutVXyuOMOYfuh4GgVnzVwmjuHzG3t88=";
+};
+```
+
+---
+
+## 3. Stockage de la clé dans un fichier séparé
+
+Il est recommandé de ne pas laisser la clé apparaître directement dans les fichiers de configuration.
+
+Créer un dossier dédié :
+
+```bash
+sudo mkdir -p /etc/bind/keys
+sudo chown bind:bind /etc/bind/keys
+sudo chmod 750 /etc/bind/keys
+```
+
+Créer le fichier de clé :
+
+```bash
+sudo nano /etc/bind/keys/dhcp-update.key
+```
+
+Y placer :
+
+```conf
+key "dhcp-update-key" {
+    algorithm hmac-sha256;
+    secret "5z31HPwmqmbSutVXyuOMOYfuh4GgVnzVwmjuHzG3t88=";
+};
+```
+
+Définir les permissions :
+
+```bash
+sudo chown bind:bind /etc/bind/keys/dhcp-update.key
+sudo chmod 640 /etc/bind/keys/dhcp-update.key
+```
+
+---
+
+## 4. Configuration de BIND9
+
+### 4.1 Inclure la clé
+
+Dans `/etc/bind/named.conf.local` :
+
+```conf
+include "/etc/bind/keys/dhcp-update.key";
+```
+
+### 4.2 Zones DNS avec autorisations d'update
+
+Exemple pour une zone directe :
+
+```conf
+zone "sio.lan" {
+    type master;
+    file "/etc/bind/zones/db.sio.lan";
+    allow-update { key dhcp-update-key; };
+};
+```
+
+Exemple pour une zone inverse :
+
+```conf
+zone "10.168.192.in-addr.arpa" {
+    type master;
+    file "/etc/bind/zones/db.192.168.10";
+    allow-update { key dhcp-update-key; };
+};
+```
+
+Ajoutez `allow-update` dans chaque zone gérée dynamiquement.
+
+### 4.3 Permissions pour les fichiers de zones
+
+Les fichiers doivent appartenir à l’utilisateur `bind` :
+
+```bash
+sudo chown bind:bind /etc/bind/zones/db.*
+sudo chmod 644 /etc/bind/zones/db.*
+```
+
+### 4.4 Désactivation ou ajustement AppArmor
+
+BIND doit pouvoir créer les fichiers journal `.jnl`.
+
+Solution simple : autoriser l’écriture dans `/etc/bind/zones`.
+
+Modifier : `/etc/apparmor.d/usr.sbin.named`
+
+Ajouter :
+
+```
+/etc/bind/zones/** rw,
+```
+
+Puis :
+
+```bash
+sudo apparmor_parser -r /etc/apparmor.d/usr.sbin.named
+sudo systemctl restart bind9
+```
+
+---
+
+## 5. Configuration du serveur DHCP
+
+### 5.1 Inclusion de la clé
+
+Dans `/etc/dhcp/dhcpd.conf` ajouter :
+
+```conf
+include "/etc/bind/keys/dhcp-update.key";
+```
+
+### 5.2 Paramétrage DDNS
+
+Exemple de configuration :
+
+```conf
+ddns-update-style interim;
+ddns-domainname "sio.lan";
+ddns-rev-domainname "in-addr.arpa";
+update-static-leases on;
+```
+
+### 5.3 Paramétrage des mises à jour sécurisées
+
+```conf
+zone sio.lan. {
+    primary 127.0.0.1;
+    key dhcp-update-key;
+}
+
+zone 10.168.192.in-addr.arpa. {
+    primary 127.0.0.1;
+    key dhcp-update-key;
+}
+```
+
+### 5.4 Déclaration d’un hôte
+
+```conf
+host knuckles {
+    hardware ethernet 08:00:27:65:b7:5d;
+    fixed-address 192.168.10.5;
+}
+```
+
+---
+
+## 6. Redémarrage et vérifications
+
+### Redémarrer les services
+
+```bash
+sudo systemctl restart bind9
+sudo systemctl restart isc-dhcp-server
+```
+
+### Vérifier la configuration
+
+```bash
+sudo named-checkconf
+sudo named-checkzone sio.lan /etc/bind/zones/db.sio.lan
+```
+
+### Surveiller les logs
+
+```bash
+sudo tail -f /var/log/syslog | grep -E "dhcp|named"
+```
+
+Exemples de messages de succès :
+
+```
+Added new forward map from knuckles.sio.lan to 192.168.10.5
+Added reverse map from 5.10.168.192.in-addr.arpa to knuckles.sio.lan
+```
+
+---
+
+## 7. Forcer une mise à jour d’un client DHCP
+
+Une mise à jour DDNS n’est envoyée que lorsque le client renouvelle son bail.
+
+Pour forcer immédiatement :
+
+### Sur Linux
+
+```bash
+sudo dhclient -r
+sudo dhclient
+```
+
+### Sur Windows
+
+```powershell
+ipconfig /release
+ipconfig /renew
+```
+
+---
+
+## 8. Vérification dans les fichiers de zones
+
+Les fichiers de zone ne sont mis à jour qu'en cas d'arrêt propre de BIND ou export du journal `.jnl`.
+
+Pour forcer l’écriture :
+
+```bash
+sudo rndc sync -clean
+```
+
+---
+
+## 9. Résumé des actions réalisées
+
+1. Création d’une clé TSIG sécurisée.
+2. Séparation de la clé dans un fichier dédié.
+3. Configuration de BIND pour accepter les mises à jour dynamiques.
+4. Ajustement d’AppArmor pour autoriser l’écriture des journaux de zone.
+5. Configuration du serveur DHCP pour signer les mises à jour.
+6. Tests de fonctionnement et analyse des logs.
+7. Validation totale des mises à jour directes et inverses.
+
+---
+
+## 10. Conclusion
+
+Le système DHCP–BIND est désormais entièrement opérationnel avec des mises à jour DNS dynamiques sécurisées. Toute nouvelle attribution ou modification d’adresse IP est automatiquement répercutée dans les enregistrements DNS correspondants, garantissant une cohérence parfaite entre infrastructure IP et DNS.
