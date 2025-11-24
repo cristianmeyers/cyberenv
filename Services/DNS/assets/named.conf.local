@@ -1,0 +1,23 @@
+// =========================================================
+// Clé RNDC
+// =========================================================
+include "/etc/bind/keys/rndc.key";
+
+// =========================================================
+// Zone directe dynamique
+// =========================================================
+zone "sio.lan" {
+    type master;
+    file "/etc/bind/zones/db.sio.lan";
+    allow-update { key "rndc-key"; };
+};
+
+// =========================================================
+// Zones inverses dynamique pour les 6 VLANs
+// =========================================================
+zone "10.168.192.in-addr.arpa" { type master; file "/etc/bind/zones/db.192.168.10";  allow-update { key "rndc-key"; }; };
+zone "20.168.192.in-addr.arpa" { type master; file "/etc/bind/zones/db.192.168.20";  allow-update { key "rndc-key"; }; };
+zone "30.168.192.in-addr.arpa" { type master; file "/etc/bind/zones/db.192.168.30";  allow-update { key "rndc-key"; }; };
+zone "40.168.192.in-addr.arpa" { type master; file "/etc/bind/zones/db.192.168.40";  allow-update { key "rndc-key"; }; };
+zone "50.168.192.in-addr.arpa" { type master; file "/etc/bind/zones/db.192.168.50";  allow-update { key "rndc-key"; }; };
+zone "60.168.192.in-addr.arpa" { type master; file "/etc/bind/zones/db.192.168.60";  allow-update { key "rndc-key"; }; };
