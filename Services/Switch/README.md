@@ -136,3 +136,18 @@ Après cela, le switch sera **totalement fonctionnel** comme switch L2 géré av
 /system backup save name=switch-lab-20251123.backup
 /export hide-sensitive file=switch-lab-config-20251123
 ```
+
+---
+
+| Ports                                  | VLAN assignée | Mode     | Description                    |
+| -------------------------------------- | ------------- | -------- | ------------------------------ |
+| 1 (Trunk)                              | 10, 20, 30... | Tagged   | Port trunk vers le routeur CHR |
+| 2                                      | Aucun         | N/A      | Pas de VLAN assignée           |
+| 3, 4, 5, 6                             | 10            | Untagged | Ports accès pour VLAN 10       |
+| 7, 8, 9, 10                            | 20            | Untagged | Ports accès pour VLAN 20       |
+| 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 | 30            | Untagged | Ports accès pour VLAN 30       |
+| 21, 22, 23, 24                         | Aucun         | N/A      | Pas de VLAN assignée           |
+
+- Les ports en mode **untagged** appartiennent à la VLAN indiquée et envoient/reçoivent le trafic sans étiquette VLAN.
+- Le port 1 est en mode **tagged**, transportant toutes les VLAN.
+- Les ports sans VLAN assignée ne participent pas à la segmentation VLAN.

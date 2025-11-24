@@ -75,6 +75,15 @@ add bridge=bridge-vlans tagged=bridge-vlans,ether2 vlan-ids=10,20,30,40,50,60
 ## 4. Adressage IP (Passerelles par VLAN)
 
 ```bash
+/interface vlan
+add name=vlan10 vlan-id=10 interface=ether2
+add name=vlan20 vlan-id=20 interface=ether2
+add name=vlan30 vlan-id=30 interface=ether2
+add name=vlan40 vlan-id=40 interface=ether2
+add name=vlan50 vlan-id=50 interface=ether2
+add name=vlan60 vlan-id=60 interface=ether2
+
+
 /ip address
 add address=192.168.10.1/24 interface=vlan10 comment=SERVER
 add address=192.168.20.1/24 interface=vlan20 comment=BACKUP
