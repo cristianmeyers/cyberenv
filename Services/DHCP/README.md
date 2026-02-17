@@ -40,7 +40,7 @@ network:
 
 > Attention à l'indentation !!
 
-On test la l'application des configs pour eviter une deconnexion du serveur si on est connecté par SSH, et si pas d'erreur, on **applique**. puis on active l'interface.
+On test l'application des configs pour eviter une deconnexion du serveur si on est connecté par SSH, et si pas d'erreur, on **applique**. puis on active l'interface.
 
 ```bash
 sudo netplan try  # pour tester si pas d'erreur du fichier netplan
@@ -71,10 +71,10 @@ nano /etc/default/isc-dhcp-server
 Modifie la ligne pour écouter sur l’interface physique **ET** les sous-interfaces VLAN :
 
 ```bash
-INTERFACESv4="enp0s3.10 enp0s3.20 enp0s3.30"
+INTERFACESv4="enp0s3"
 ```
 
-> Pourquoi ? <br> > **enp0s3** → capte les requêtes non taguées (si besoin)<br> > **enp0s3**.10, .20, .30 → capte les requêtes taguées **802.1Q** des VLANs
+> Pourquoi ? <br> > **enp0s3** → écoute toutes les requetes de cette interface
 
 ```bash
 sudo systemctl start isc-dhcp-server
@@ -82,48 +82,19 @@ sudo systemctl enable isc-dhcp-server
 sudo systemctl status isc-dhcp-server
 ```
 
-## Création des VLANs sur l’interface trunk
-
-On va maintenant **déclarer les sous-interfaces VLAN** sur `enp0s3` pour que le serveur DHCP puisse **recevoir les requêtes taguées** des VLANs 10, 20 et 30.
-
-### Étape 1 : Créer les sous-interfaces VLAN
+### Étape 1 : Donner une addresse ip à l'interface
 
 ```bash
-# VLAN 10 - Serveurs
-sudo ip link add link enp0s3 name enp0s3.10 type vlan id 10
-
-# VLAN 20 - Backup
-sudo ip link add link enp0s3 name enp0s3.20 type vlan id 20
-
-# VLAN 30 - IT
-sudo ip link add link enp0s3 name enp0s3.30 type vlan id 30
+sudo ip addr add 192.168.10.2/24 dev enp0s3
 ```
 
-##3Étape 2 : Activer les VLANs
-
-```bash
-sudo ip link set enp0s3.10 up
-sudo ip link set enp0s3.20 up
-sudo ip link set enp0s3.30 up
-```
-
-### Étape 3 : Donner une addresse ip au interfaces
-
-```bash
-sudo ip addr add 192.168.10.1/24 dev enp0s3.10
-sudo ip addr add 192.168.20.1/24 dev enp0s3.20
-sudo ip addr add 192.168.30.1/24 dev enp0s3.30
-```
-
-### Étape 4 : Vérifier
+### Étape 2 : Vérifier
 
 ```bash
 ip -br a | grep enp0s3
 ```
 
-> Aucune IP sur les VLANs → normal (la passerelle est sur le MikroTik)
-
-### Étape 5 : Rendre les VLANs persistants (après reboot)
+### Étape 3 : Rendre l'IP persistante (après reboot)
 
 ```bash
 sudo nano /etc/netplan/01-vlans.yaml
@@ -138,22 +109,13 @@ network:
   ethernets:
     enp0s3:
       dhcp4: no
-  vlans:
-    enp0s3.10:
-      id: 10
-      link: enp0s3
-      addresses: [192.168.10.1/24]
-    enp0s3.20:
-      id: 20
-      link: enp0s3
-      addresses: [192.168.20.1/24]
-    enp0s3.30:
-      id: 30
-      link: enp0s3
-      addresses: [192.168.30.1/24]
+      adresses: [192.168.10.2/24]
+      routes:
+        - to : default
+          via : 192.168.10.254
 ```
 
-> \*\*ATTENTION: Les clients doivent, être connecté à l'interface vlan ! ex : enp0s3.30
+> \*\*ATTENTION: L'interface doit être conectée pour passer au statut ON
 
 ```bash
 # Appliquer et redemarer le DHCP
@@ -216,33 +178,4 @@ subnet 192.168.30.0 netmask 255.255.255.0 {
   option broadcast-address 192.168.30.255;
 }
 
-```
-
----
-
-# Update DDNS
-
-### Étape 1 : Confi
-
-```bash
-sudo rndc-confgen -a -b 512 -k DHCP_UPDATE
-sudo cp /etc/bind/rndc.key /etc/dhcp/ddns.key
-sudo chown root:dhcpd /etc/dhcp/ddns.key 2>/dev/null || sudo chown root:bind /etc/dhcp/ddns.key
-sudo chmod 640 /etc/dhcp/ddns.key
-ls -l /etc/dhcp/ddns.key
-```
-
-```text
--rw-r-----. 1 root dhcpd 130 Nov 12 10:08 /etc/dhcp/ddns.key
-```
-
-```bash
-sudo systemctl restart isc-dhcp-server
-sudo systemctl status isc-dhcp-server
-```
-
-verif
-
-```bash
-sudo dhcpd -t -cf /etc/dhcp/dhcpd.conf
 ```
