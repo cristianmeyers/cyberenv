@@ -2,7 +2,7 @@
 
 ## Contexte
 
-Ce projet a pour ambition de créer une salle informatique équipée et sécurisée, destinée à la formation pratique aux tests d'intrusion (pentest) et à la cyberdéfense et fournir un environnement pédagogique complet permettant d'apprendre à planifier, concevoir, déployer et utiliser une infrastructure dédiée aux activités de pentest et d'analyse en cybersécurité.
+Mon projet a pour ambition de créer une salle informatique équipée et sécurisée, destinée à la formation pratique aux tests d'intrusion (pentest) et à la cyberdéfense et fournir un environnement pédagogique complet permettant d'apprendre à planifier, concevoir, déployer et utiliser une infrastructure dédiée aux activités de pentest et d'analyse en cybersécurité.
 
 ## Objectifs spécifiques
 
