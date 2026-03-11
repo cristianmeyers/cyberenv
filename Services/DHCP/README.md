@@ -1,181 +1,162 @@
-# DHCP
+# 📂 Configuration du Serveur DHCP Kea (`siodhcp`)
 
-Pour le service DHCP j'ai choisi un **Ubuntu Live server 24.04 LTS** comme serveur principal puis `isc-dhcp-server` comme service dhcp. Ci-dessous il y aura la configuration en partant de zéro.
+Ce guide détaille l'installation et la sécurisation du service DHCP pour le projet **CyberEnv**. Ce serveur distribue les adresses IP sur le segment `192.168.10.0/24` et oriente les clients vers le contrôleur de domaine pour la résolution DNS.
 
-## Interfaces & Réseaux
+## 📝 Spécifications Réseau
 
-Faut determiner d'abord l'interface souhaitée, celle qui recevra les requetes ARP:
+- **Hostname :** `siodhcp`
+- **IP Statique :** `192.168.10.2`
+- **Passerelle (Gateway) :** `192.168.10.1`
+- **DNS Primaire (AD) :** `192.168.10.4`
+- **Domaine :** `sio.lan`
+- **Plage d'adresses (Pool) :** `192.168.10.50` - `192.168.10.150`
 
-```bash
-    ip a
-```
+## 🛠 Phase 1 : Préparation du Système
 
-devra montrer :
+Avant l'installation, il est impératif que la VM possède une identité propre et une connectivité stable.
 
-![enp0s3 ou nom similaire](../../IMG/ipa_dhcp.png)
-
-avec cette information on peut deternminer le nom de ml'interface, son etat : `UP` ou `Down`, ainsi que son addresse MAC et **possible addresse IP**, dans ce cas :
-
-- **Nom** : `enp0s8`
-- **MAC** : `08:00:27:36:7f:93`
-- **Etat** : `Down`
-- **IP** : vide
-
-Maintenant faut conecter le seveur a internet via cette interface, je prend enp0s3 comme exemple. pour cela, deux moyen, activer le dhcp, ou utiliser une addresse physique. Dans notre cas, l'option 1 es plus adapté.
+### 1.1 Nom d'hôte
 
 ```bash
-sudo nano /etc/netplan/00-installer-config.yaml
+sudo hostnamectl set-hostname siodhcp
+exec bash
 
 ```
 
-Et remplir le fichier avec
+### 1.2 Configuration Réseau (Netplan)
+
+Éditez votre fichier de configuration réseau (généralement dans `/etc/netplan/`).
 
 ```yaml
 network:
-  renderer: networkd
-  ethernets:
-    enp0s8: # interface en question
-      dhcp4: true # active la connexion par dhcp
-```
-
-> Attention à l'indentation !!
-
-On test l'application des configs pour eviter une deconnexion du serveur si on est connecté par SSH, et si pas d'erreur, on **applique**. puis on active l'interface.
-
-```bash
-sudo netplan try  # pour tester si pas d'erreur du fichier netplan
-sudo netplan apply  # appliquer
-sudo ip link set enp0s8 up  # attention au nom de l'interface !!
-```
-
-Plus qu'a vérifier avec `ip a` pour confirmer l'existance d'une addresses IP, et `ping 8.8.8.8` pour tester la connexion internet
-
----
-
-## Services
-
-On va installer `isc-dhcp-server`, le configurer pour **écouter sur l’interface trunk + VLANs**, puis le lancer et le surveiller.
-
-```bash
-# Mise à jour + installation
-sudo apt update -y
-sudo apt install isc-dhcp-server -y
-```
-
-**Configuration des interfaces d’écoute**
-
-```bash
-nano /etc/default/isc-dhcp-server
-```
-
-Modifie la ligne pour écouter sur l’interface physique **ET** les sous-interfaces VLAN :
-
-```bash
-INTERFACESv4="enp0s3"
-```
-
-> Pourquoi ? <br> > **enp0s3** → écoute toutes les requetes de cette interface
-
-```bash
-sudo systemctl start isc-dhcp-server
-sudo systemctl enable isc-dhcp-server
-sudo systemctl status isc-dhcp-server
-```
-
-### Étape 1 : Donner une addresse ip à l'interface
-
-```bash
-sudo ip addr add 192.168.10.2/24 dev enp0s3
-```
-
-### Étape 2 : Vérifier
-
-```bash
-ip -br a | grep enp0s3
-```
-
-### Étape 3 : Rendre l'IP persistante (après reboot)
-
-```bash
-sudo nano /etc/netplan/01-vlans.yaml
-```
-
-Remplir le fichier avec:
-
-```bash
-network:
   version: 2
-  renderer: networkd
   ethernets:
-    enp0s3:
-      dhcp4: no
-      adresses: [192.168.10.2/24]
+    ens18: # Nom de votre interface
+      addresses:
+        - 192.168.10.2/24
       routes:
-        - to : default
-          via : 192.168.10.254
+        - to: default
+          via: 192.168.10.1
+      nameservers:
+        addresses: [192.168.10.4, 8.8.8.8]
+        search: [sio.lan]
 ```
 
-> \*\*ATTENTION: L'interface doit être conectée pour passer au statut ON
+`sudo netplan apply`
+
+## 📦 Phase 2 : Installation et Authentification
+
+Kea utilise un agent de contrôle pour gérer le service via une API. Lors de l'installation, une interface bleue s'affichera.
+
+### 2.1 Installation des paquets
 
 ```bash
-# Appliquer et redemarer le DHCP
-sudo systemctl restart systemd-networkd
-sudo systemctl restart isc-dhcp-server
+sudo apt update && sudo apt install -y kea-dhcp4-server kea-ctrl-agent
+
 ```
 
-> Refaire ces opérations pour chaque vlan supplémentaire
+### 2.2 Écran de configuration (Blue Screen)
 
----
+Lorsqu'on vous demande de configurer l'authentification de l'agent de contrôle :
 
-# Configuration
+1. Choisissez l'option **3. configured_password**.
+2. Saisissez le mot de passe : `sioPBA29200`.
 
-A ce stade nous avons configué le DHCP sur les bonnes interfaces, ajouté des vlans, et donné un accès internet **temporaire** su DHCP afin de mettre en place les services. Maintenant on configurera le fichier de configuration.
+## ⚙️ Phase 3 : Configuration des Services
 
-**Pour ce faire, on configure le fichier avec la commande suivante :**
+### 3.1 Agent de Contrôle (`/etc/kea/kea-ctrl-agent.conf`)
+
+Ce service sécurise l'accès à l'API Kea.
+
+```json
+{
+  "Control-agent": {
+    "http-host": "127.0.0.1",
+    "http-port": 8000,
+    "authentication": {
+      "type": "basic",
+      "clients": [
+        {
+          "user": "kea-api",
+          "password": "sioPBA29200"
+        }
+      ]
+    },
+    "control-sockets": {
+      "dhcp4": {
+        "socket-type": "unix",
+        "socket-name": "/run/kea/kea-dhcp4-ctrl.sock"
+      }
+    }
+  }
+}
+```
+
+### 3.2 Moteur DHCPv4 (`/etc/kea/kea-dhcp4.conf`)
+
+C'est ici que l'on définit la distribution des adresses IP.
+
+```json
+{
+  "Dhcp4": {
+    "interfaces-config": {
+      "interfaces": ["ens18"]
+    },
+    "lease-database": {
+      "type": "memfile",
+      "persist": true,
+      "name": "/var/lib/kea/kea-leases4.csv",
+      "lfc-interval": 3600
+    },
+    "subnet4": [
+      {
+        "id": 1,
+        "subnet": "192.168.10.0/24",
+        "pools": [{ "pool": "192.168.10.50 - 192.168.10.150" }],
+        "option-data": [
+          { "name": "routers", "data": "192.168.10.1" },
+          { "name": "domain-name-servers", "data": "192.168.10.4" },
+          { "name": "domain-name", "data": "sio.lan" }
+        ]
+      }
+    ],
+    "loggers": [
+      {
+        "name": "kea-dhcp4",
+        "output_options": [{ "output": "/var/log/kea-dhcp4.log" }],
+        "severity": "INFO"
+      }
+    ]
+  }
+}
+```
+
+## 🚀 Phase 4 : Activation et Monitoring
+
+### 4.1 Démarrage des services
 
 ```bash
-sudo nano /etc/dhcp/dhcpd.conf
+sudo touch /var/log/kea-dhcp4.log
+sudo chown kea:kea /var/log/kea-dhcp4.log
+sudo systemctl restart kea-ctrl-agent kea-dhcp4-server
+sudo systemctl enable kea-ctrl-agent kea-dhcp4-server
+
 ```
 
-**Ici on declare les vlans, le DNS et la passerelle**
+### 4.2 Vérification des logs (Temps réel)
 
-```text
-# =============================================
-# ISC-DHCP-SERVER - Lab
-# =============================================
+Pour voir si un client (ex: Windows) demande une IP, utilisez :
 
-# Options globales
-default-lease-time 86400;      # 24h
-max-lease-time 172800;         # 48h
-authoritative;
-option domain-name "lab.local";
-option domain-name-servers 8.8.8.8, 1.1.1.1;
+```bash
+sudo tail -f /var/log/kea-dhcp4.log
 
-# =============================================
-# VLAN 10 - Serveurs
-# =============================================
-subnet 192.168.10.0 netmask 255.255.255.0 {
-  range 192.168.10.100 192.168.10.200;
-  option routers 192.168.10.1;
-  option broadcast-address 192.168.10.255;
-}
+```
 
-# =============================================
-# VLAN 20 - Backup
-# =============================================
-subnet 192.168.20.0 netmask 255.255.255.0 {
-  range 192.168.20.100 192.168.20.200;
-  option routers 192.168.20.1;
-  option broadcast-address 192.168.20.255;
-}
+### 4.3 Consultation des baux (Leases)
 
-# =============================================
-# VLAN 30 - IT
-# =============================================
-subnet 192.168.30.0 netmask 255.255.255.0 {
-  range 192.168.30.100 192.168.30.200;
-  option routers 192.168.30.1;
-  option broadcast-address 192.168.30.255;
-}
+Pour voir la liste des machines connectées et leurs IPs :
+
+```bash
+cat /var/lib/kea/kea-leases4.csv
 
 ```
