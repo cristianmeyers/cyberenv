@@ -1,10 +1,10 @@
-# 🗄️ siodb : Serveur de Base de Données Centralisé (MariaDB)
+# 🗄️ siodb : Serveur de Base de Données Centralisé (MariaDB 12.2.2)
 
-Ce dépôt documente la configuration et le déploiement du serveur de base de données principal pour l'infrastructure de laboratoire **sio.lan**. Ce serveur centralise les données pour les services **GLPI**, **Wiki.js** et **Nextcloud**.
+Ce dépôt documente la configuration et le déploiement du serveur de base de données principal pour l'infrastructure de laboratoire **sio.lan**. Ce serveur héberge les bases de données de **GLPI** et **Wiki.js**, déployés sur `siolnx`.
 
 ## 🚀 Vue d'ensemble de l'infrastructure
 
-Le serveur est basé sur une installation **Ubuntu Minimized**, choisie pour sa légèreté, sa sécurité accrue et sa faible consommation de ressources sous Proxmox.
+**Ubuntu Minimized** sous Proxmox avec **MariaDB 12.2.2** (2026 LTS).
 
 ### 📌 Spécifications Réseau
 
@@ -14,17 +14,13 @@ Le serveur est basé sur une installation **Ubuntu Minimized**, choisie pour sa 
 | **FQDN**                  | `siodb.sio.lan`          |
 | **Adresse IP**            | `192.168.10.5`           |
 | **Masque de sous-réseau** | `255.255.255.0` (/24)    |
-| **Passerelle (Gateway)**  | `192.168.10.1` (OpenWRT) |
+| **Passerelle**            | `192.168.10.1` (OpenWRT) |
 | **DNS Primaire**          | `192.168.10.4` (sioad)   |
 | **Domaine**               | `sio.lan`                |
 
----
-
 ## 🛠️ Configuration du Système
 
-### 1. Configuration Réseau (Netplan)
-
-Le fichier `/etc/netplan/00-installer-config.yaml` a été configuré pour une IP statique afin de garantir la disponibilité du service même en cas d'indisponibilité du serveur DHCP :
+### 1. Réseau Statique (Netplan)
 
 ```yaml
 network:
@@ -33,8 +29,7 @@ network:
   ethernets:
     enp0s1:
       dhcp4: no
-      addresses:
-        - 192.168.10.5/24
+      addresses: [192.168.10.5/24]
       nameservers:
         addresses: [192.168.10.4]
         search: [sio.lan]
@@ -43,60 +38,115 @@ network:
           via: 192.168.10.1
 ```
 
-### 2. Résolution de noms locale (`/etc/hosts`)
+### 2. `/etc/hosts`
 
 ```text
 127.0.0.1       localhost
 127.0.1.1       siodb.sio.lan    siodb
 
 # Infrastructure SIO
-192.168.10.4    sioad.sio.lan     sioad
-192.168.10.2    siodhcp.sio.lan   siodhcp
-192.168.10.1    siogw.sio.lan     siogw
-
+192.168.10.4    sioad.sio.lan    sioad
+192.168.10.2    siodhcp.sio.lan  siodhcp
+192.168.10.1    siogw.sio.lan    siogw
+192.168.10.6    siolnx.sio.lan   siolnx
 ```
 
----
+## 🗄️ MariaDB 12.2.2 (Zero-Configuration SSL)
 
-## 🗄️ Service MariaDB
-
-### 1. Installation
+### 1. Installation & Repo Officiel
 
 ```bash
-sudo apt update && sudo apt install mariadb-server -y
-
+curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-12.2-repo
+sudo apt install mariadb-server mariadb-client -y
+sudo systemctl enable --now mariadb
+sudo mysql_secure_installation
 ```
 
-### 2. Configuration de l'accès distant
-
-Pour permettre aux serveurs d'applications de se connecter, la directive `bind-address` a été modifiée dans `/etc/mysql/mariadb.conf.d/50-server.cnf` :
+### 2. Configuration (`/etc/mysql/mariadb.conf.d/50-server.cnf`)
 
 ```ini
+[mysqld]
 bind-address = 0.0.0.0
-
+require-secure-transport = OFF
 ```
 
-### 3. Utilisateurs et Bases de Données (Préparation)
+> ⚠️ **Décision technique** : `require-secure-transport = OFF` est intentionnel.
+> MariaDB 12.2.2 inclut le **Zero-Configuration SSL** — il génère automatiquement
+> ses propres certificats et chiffre les connexions des clients compatibles.
+> Le flag `OFF` ne désactive pas le chiffrement, il permet aux clients qui ne
+> supportent pas le SSL automatique (comme PHP mysqli dans les conteneurs Docker)
+> de se connecter sans être rejetés.
+> Dans un environnement de production, on utiliserait WireGuard entre les serveurs
+> pour chiffrer tout le trafic inter-serveurs au niveau réseau.
 
-Les comptes suivants ont été créés avec des privilèges restreints aux bases de données respectives :
+```bash
+sudo systemctl restart mariadb
+```
 
-- **GLPI :** `glpi_user` sur `glpidb`
-- **Wiki.js :** `wiki_user` sur `wikidb`
-- **Nextcloud :** `nc_user` sur `nextclouddb`
+### 3. Bases de Données & Utilisateurs
 
----
+| Service     | Base de données | Utilisateur | Accès       |
+| ----------- | --------------- | ----------- | ----------- |
+| **GLPI**    | `glpidb`        | `sio@%`     | ✅ Actif    |
+| **Wiki.js** | `wikidb`        | `sio@%`     | ✅ Actif    |
+| Nextcloud   | `nextclouddb`   | `nc_user@%` | ⏳ Planifié |
 
-## 🔍 Tests et Vérifications
+```sql
+-- Bases de données
+CREATE DATABASE glpidb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE wikidb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-### Test de connectivité (depuis Windows)
+-- Utilisateur unique pour les deux services
+CREATE USER 'sio'@'%' IDENTIFIED BY 'sioPBA29200';
+GRANT ALL PRIVILEGES ON glpidb.* TO 'sio'@'%';
+GRANT ALL PRIVILEGES ON wikidb.* TO 'sio'@'%';
+FLUSH PRIVILEGES;
+```
 
-Depuis un client Windows (`siowin`), la connectivité au port MariaDB est validée via PowerShell :
+### 4. Vérification
+
+```sql
+-- Vérifier les utilisateurs et permissions
+SELECT user, host FROM mysql.user WHERE user='sio';
+SHOW GRANTS FOR 'sio'@'%';
+
+-- Vérifier le SSL Zero-Config
+SHOW VARIABLES LIKE 'have_ssl';
+SHOW VARIABLES LIKE 'require_secure_transport';
+```
+
+## 🔍 Tests de Connectivité
+
+### Depuis siolnx (serveur GLPI/Wiki.js)
+
+```bash
+# Test de connexion simple
+mysql -h 192.168.10.5 -u sio -psioPBA29200 glpidb
+
+# Test de connexion avec SSL explicite (client mariadb 11.4+)
+mysql -h 192.168.10.5 -u sio -psioPBA29200 -e "STATUS" | grep SSL
+```
+
+### Depuis Windows (PowerShell)
 
 ```powershell
 Test-NetConnection -ComputerName 192.168.10.5 -Port 3306
-
+# TcpTestSucceeded : True
 ```
 
-**Résultat attendu :** `TcpTestSucceeded : True`
+### Débloquer un host bloqué (trop de tentatives)
 
----
+Si MariaDB bloque un host après trop de tentatives échouées :
+
+```sql
+FLUSH HOSTS;
+```
+
+## 📝 Notes de Sécurité
+
+| Aspect                      | État | Détail                                      |
+| --------------------------- | ---- | ------------------------------------------- |
+| HTTPS clients web           | ✅   | mkcert sur Traefik (siolnx)                 |
+| Chiffrement DB ↔ conteneurs | ⚠️   | TCP sans chiffrement (réseau interne privé) |
+| Zero-Config SSL MariaDB     | ✅   | Disponible, non obligatoire                 |
+| Amélioration future         | 🔜   | WireGuard entre siolnx et siodb             |
