@@ -4,30 +4,21 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tools — Lab</title>
+    <title>Tools — CyberEnv Lab</title>
     <link
         href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap"
         rel="stylesheet" />
 
     <script>
-        /* ============================================================
-           🛠️  CONFIGURATION — MODIFIEZ ICI UNIQUEMENT
-           ============================================================
-           Chaque groupe a :
-             - name    : nom de la section
-             - color   : couleur accent du groupe (hex)
-             - items   : tableau de services
-        
-           Chaque item a :
-             - name    : nom affiché
-             - url     : lien cliquable
-             - desc    : courte description (optionnel)
-             - icon    : emoji OU url d'image OU "svg:<path_data>"
-             - color   : couleur de la carte (optionnel, hérite du groupe)
-        
-           AJOUTER UN ITEM : copiez un bloc { ... } et ajustez.
-           AJOUTER UN GROUPE : copiez un bloc de groupe et ajustez.
-           ============================================================ */
+        /* ================================================================
+           🛠️  LAB_CONFIG — MODIFIEZ ICI UNIQUEMENT
+           ================================================================
+           shortName : nom court affiché en titre
+           fullName  : fqdn / ip affiché en sous-titre
+           url       : lien cliquable
+           logo      : URL directe vers le logo (PNG/SVG)
+           color     : couleur accent de la carte
+           ================================================================ */
 
         const LAB_CONFIG = [
 
@@ -36,182 +27,73 @@
                 color: "#E55C00",
                 items: [
                     {
-                        name: "Proxmox",
-                        url: "https://proxmox.lan:8006",
-                        desc: "Hyperviseur VE",
-                        icon: "img:https://www.proxmox.com/images/proxmox/Proxmox_symbol_standard_hex_400px.png",
+                        shortName: "Proxmox VE",
+                        fullName: "siovirt2.sio.lan · 192.168.10.2:8006",
+                        url: "https://192.168.10.2:8006",
+                        logo: "https://cdn.simpleicons.org/proxmox/E55C00",
                         color: "#E55C00"
-                    },
-                    {
-                        name: "pfSense",
-                        url: "https://pfsense.lan",
-                        desc: "Pare-feu & routeur",
-                        icon: "svg:M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z",
-                        color: "#212A31"
-                    },
-                    {
-                        name: "TrueNAS",
-                        url: "https://truenas.lan",
-                        desc: "Stockage NAS",
-                        icon: "svg:M20 6H4v2h16V6zm-2 4H6v2h12v-2zm2 4H4v2h16v-2z",
-                        color: "#0095D5"
-                    },
-                    {
-                        name: "Nginx PM",
-                        url: "https://npm.lan",
-                        desc: "Nginx Proxy Manager",
-                        icon: "svg:M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8v8l-8 4-8-4V8l8-3.82z",
-                        color: "#F4801A"
                     }
                 ]
             },
 
             {
-                name: "Gestion IT",
+                name: "Réseau",
+                color: "#1B6CA8",
+                items: [
+                    {
+                        shortName: "Routeur WAN",
+                        fullName: "MikroTik · 192.168.10.254",
+                        url: "http://192.168.10.254",
+                        logo: "https://cdn.simpleicons.org/mikrotik/CC0000",
+                        color: "#CC0000"
+                    },
+                    {
+                        shortName: "Cisco AP",
+                        fullName: "ap.sio.lan · 192.168.10.250",
+                        url: "http://192.168.10.250",
+                        logo: "https://cdn.simpleicons.org/cisco/1B6CA8",
+                        color: "#1B6CA8"
+                    }
+                ]
+            },
+
+            {
+                name: "Services Web",
                 color: "#0057A8",
                 items: [
                     {
-                        name: "GLPI",
-                        url: "https://glpi.lan",
-                        desc: "Helpdesk & inventaire",
-                        icon: "svg:M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 14H8v-2h4v2zm4-4H8v-2h8v2zm0-4H8V7h8v2z",
+                        shortName: "GLPI",
+                        fullName: "siolnx.sio.lan · 192.168.10.6/glpi",
+                        url: "http://192.168.10.6/glpi",
+                        svgLogo: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 151.37 511.97 209.23"><style>.st0{fill:#00a5f3}</style><path d="M253.9 328c-11.7 0-23.3-.3-35 0-7.3.3-9.9-1.7-8.7-9.5 7.1-48.7 13.7-97.4 20.6-146.2.2-1.2.4-2.3.6-3.4 2.5-17.8 2.5-17.6 20.2-17.2 6.7.1 8.8 2.6 7.8 9-3.7 26.3-7.5 52.5-11.1 78.8-2.8 19.7-5.3 39.2-8.3 58.8-.8 4.9.6 6 5.2 6 16-.2 32 .2 48.1-.2 6.8-.2 9.4 1.8 8.6 9-1.7 14.4-1.9 14.8-16.3 14.8zm220.9 0c-13.1 0-13.1-.3-11.2-13.3q11.1-76.95 21.6-153.9c.9-6.5 3.3-9.6 9.9-9h3.5c14.8 0 14.4 0 12.3 14.8-7.1 49.5-13.9 99.1-20.9 148.7-2 12.7-2.3 12.7-15.2 12.7m-76.3-176.3c-13.4.8-26.8.4-40.3 0-7.1-.2-10.2 2.1-11.2 9.7-6.8 51.1-14.1 102.2-21.3 153.2-1.9 13.4-2.1 13.4 10.9 13.4 13.9 0 13.9 0 15.7-13.6 1.2-9 2.7-17.9 3.6-26.9 2.5-22.9 2.5-22.9 25-22.9h3.5c34.2 0 59.4-22.2 64.1-55.9 3.3-26.6-12.8-59.2-50-57m-13 87.7c-2-.2-4.1 0-6.1 0-16.4 0-16.5 0-14.6-16.2 1.6-13.3 3.8-26.5 5.4-39.8.6-4.8 2.5-6.4 7.2-6.2 6.7.3 13.4 0 20.1 0 13.3 0 21.6 7.6 23.6 20.8 2.7 18.1-9.8 43.8-35.8 41.3h.2z" class="st0"/><path d="M128.5 308.4c-7.9-.6-15.7-2.3-23.1-4.9 19.7-11.1 33.1-27.1 38.2-49.3 1.4-6-2.7-9.1-7.8-11-10.2-3.8-21-4.2-31.8-4.6-5.4 0-10.8-.2-16.2-.8 16.4-7.2 33.7-12.3 51.4-15.1 9.1-1.8 18.6-1.8 27.7 0 12.6 3 19 12.8 16.1 25.4-4.5 19.5-19.1 31.5-33 43.9-6.6 6.1-14.3 11-21.5 16.4m-33.4 18.2-17.8-3.8c-.5 4.7-4.9 5.5-7.9 7.2-14.8 8.3-54.7 27.4-55.7 30.6 3 0 59.6-21.8 81.4-34" style="fill:#00a5f3;opacity:.6"/><path d="M104.1 176.7c19.2-7 39.1-8.9 59.3-8.8 4.9 0 9.3.8 9.6-6.4.3-6.6-2-9.3-8.8-9.7-19.5-1.1-39.1-.1-58.4 2.9-26.7 4-52.6 10.6-74.9 26.9C-2.5 206-10 252.8 14.2 286.4c5.3 7.4 12 13.7 19.6 18.7 13.3 8.5 28 14.5 43.4 17.7l17.8 3.8c22.3 2.1 44.6 3.9 67.1 1.9 7.4-.7 7.4-4.4 7.4-9.7.2-5.9-1.8-8.4-8.1-8.2-11.1.6-22.2-.1-33-2.2-7.9-.6-15.7-2.3-23.1-4.9-33.6-11.2-49.5-31.3-49.7-62.6-.1-30.9 16.3-52.4 48.5-64.2" class="st0"/></svg>`,
                         color: "#0057A8"
                     },
                     {
-                        name: "FOG Project",
-                        url: "https://fog.lan/fog",
-                        desc: "Déploiement d'images",
-                        icon: "svg:M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z",
-                        color: "#3F8DBF"
+                        shortName: "Wiki.js",
+                        fullName: "siolnx.sio.lan · 192.168.10.6/wiki",
+                        url: "http://192.168.10.6/wiki",
+                        logo: "https://cdn.simpleicons.org/wikidotjs/1565C0",
+                        color: "#1565C0"
                     },
                     {
-                        name: "Wiki.js",
-                        url: "https://wiki.lan",
-                        desc: "Documentation interne",
-                        icon: "svg:12 2l-5.5 9h11L12 2zm0 4.84L14.93 9h-5.85L12 6.84zM17.5 13c-2.49 0-4.5 2.01-4.5 4.5S15.01 22 17.5 22s4.5-2.01 4.5-4.5S19.99 13 17.5 13zm0 7a2.5 2.5 0 010-5 2.5 2.5 0 010 5zM3 21.5h8v-8H3v8zm2-6h4v4H5v-4z",
-                        color: "#1976D2"
-                    },
-                    {
-                        name: "Netbox",
-                        url: "https://netbox.lan",
-                        desc: "IPAM & DCIM",
-                        icon: "svg:M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z",
-                        color: "#15B8A6"
-                    }
-                ]
-            },
-
-            {
-                name: "Monitoring",
-                color: "#6B21A8",
-                items: [
-                    {
-                        name: "Grafana",
-                        url: "https://grafana.lan:3000",
-                        desc: "Tableaux de bord",
-                        icon: "svg:M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14l-4-4 1.41-1.41L11 13.17l6.59-6.59L19 8l-8 8z",
-                        color: "#F46800"
-                    },
-                    {
-                        name: "Prometheus",
-                        url: "https://prometheus.lan:9090",
-                        desc: "Métriques & alertes",
-                        icon: "svg:M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 13h-2V7h2v8zm0 4h-2v-2h2v2z",
-                        color: "#E6522C"
-                    },
-                    {
-                        name: "Uptime Kuma",
-                        url: "https://uptime.lan",
-                        desc: "Surveillance services",
-                        icon: "svg:M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z",
-                        color: "#5CDD8B"
-                    },
-                    {
-                        name: "Portainer",
-                        url: "https://portainer.lan:9443",
-                        desc: "Gestion Docker",
-                        icon: "svg:M20 9V7c0-1.1-.9-2-2-2h-3V3H9v2H6c-1.1 0-2 .9-2 2v2H2v11h20V9h-2zM6 7h12v2H6V7zm12 11H6v-7h12v7z",
-                        color: "#13BEF9"
-                    }
-                ]
-            },
-
-            {
-                name: "Sécurité",
-                color: "#DC2626",
-                items: [
-                    {
-                        name: "Wazuh",
-                        url: "https://wazuh.lan",
-                        desc: "SIEM & EDR",
-                        icon: "svg:M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l6 2.67V11c0 3.5-2.33 6.79-6 7.93C8.33 17.79 6 14.5 6 11V7.67L12 5z",
-                        color: "#005F99"
-                    },
-                    {
-                        name: "Greenbone",
-                        url: "https://gvm.lan",
-                        desc: "Scanner de vulnérabilités",
-                        icon: "svg:M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.68.78 4.95 2.05L6.05 16.95C4.78 15.68 4 13.93 4 12c0-4.41 3.59-8 8-8zm0 12c-1.93 0-3.68-.78-4.95-2.05l10.9-10.9C19.22 8.32 20 10.07 20 12c0 4.41-3.59 8-8 8z",
-                        color: "#4CAF50"
-                    },
-                    {
-                        name: "CrowdSec",
-                        url: "https://crowdsec.lan",
-                        desc: "IPS collaboratif",
-                        icon: "svg:M12 2L4 6v6c0 4.41 3.41 8.53 8 9.93 4.59-1.4 8-5.52 8-9.93V6l-8-4z",
-                        color: "#FF3B3B"
-                    }
-                ]
-            },
-
-            {
-                name: "Dev & Outils",
-                color: "#0D7D5F",
-                items: [
-                    {
-                        name: "Gitea",
-                        url: "https://gitea.lan:3001",
-                        desc: "Git auto-hébergé",
-                        icon: "svg:M10.9 2.1l9.899 1.415 1.414 9.9-9.192 9.192a1 1 0 01-1.414 0l-9.9-9.9a1 1 0 010-1.414L10.9 2.1zm.707 2.122L3.828 12l8.486 8.485 7.778-7.778-1.06-7.425-7.425-1.06zm1.06 2.121a2 2 0 012.83 2.83 2 2 0 01-2.83-2.83z",
-                        color: "#609926"
-                    },
-                    {
-                        name: "Vaultwarden",
-                        url: "https://vault.lan",
-                        desc: "Gestionnaire de mots de passe",
-                        icon: "svg:M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z",
-                        color: "#175DDC"
-                    },
-                    {
-                        name: "Nextcloud",
-                        url: "https://nextcloud.lan",
-                        desc: "Stockage & collaboration",
-                        icon: "svg:12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z",
-                        color: "#0082C9"
-                    },
-                    {
-                        name: "Homer",
-                        url: "https://homer.lan",
-                        desc: "Dashboard services",
-                        icon: "svg:M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z",
-                        color: "#E55815"
+                        shortName: "FOG Project",
+                        fullName: "siofog.sio.lan · 192.168.10.8/fog",
+                        url: "http://192.168.10.8/fog",
+                        svgLogo: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52.424824 52.46727"><g transform="translate(-68.01816,-130.6148)"><path style="fill:#00567a;fill-opacity:1;stroke-width:0.0521459" d="m 92.527532,183.06167 c -2.120399,-0.16799 -3.500262,-0.44102 -5.944129,-1.17613 -1.846566,-0.55545 -3.136791,-1.08963 -4.709466,-1.94982 -2.8091,-1.53648 -4.235297,-2.60605 -6.293874,-4.72007 -2.824717,-2.90081 -4.909375,-6.25409 -6.095942,-9.80566 -2.098617,-6.28146 -1.944073,-12.40021 0.464071,-18.37363 1.521055,-3.77299 3.520671,-6.6438 6.65629,-9.55632 1.524981,-1.41648 2.294218,-1.99802 3.999261,-3.02345 5.515002,-3.31676 11.743354,-4.5199 17.998808,-3.47685 2.645379,0.44111 4.842019,1.17146 7.456889,2.47931 2.88472,1.44283 4.34698,2.55894 7.37906,5.63226 1.79839,1.82285 2.16374,2.28854 3.20868,4.08987 1.38413,2.38604 2.51227,5.09099 3.10512,7.44513 0.48405,1.92212 0.62131,3.10108 0.6809,5.84849 0.0564,2.60212 -0.12461,4.29376 -0.71157,6.64862 -0.84314,3.38265 -2.79737,7.46209 -4.69989,9.811 -0.54413,0.6718 -3.05216,3.20155 -3.95628,3.99056 -1.69446,1.47871 -3.2356,2.4707 -5.44408,3.50422 -3.0029,1.4053 -5.61077,2.1818 -8.531066,2.54013 -0.673634,0.0827 -3.868761,0.14732 -4.562782,0.0923 z m -6.800357,-9.71851 c 0.153815,-0.0292 0.367747,-0.11133 0.4754,-0.18257 0.516422,-0.34176 0.606542,-0.95746 0.744017,-5.08329 0.129937,-3.89952 0.22811,-5.20554 0.443798,-5.90386 0.09601,-0.31085 0.122844,-0.3466 0.352185,-0.46928 0.690446,-0.3693 2.885448,-1.0133 5.541076,-1.62571 1.101873,-0.2541 1.547558,-0.34638 3.806663,-0.78819 3.191616,-0.62418 4.460746,-1.05301 5.162536,-1.74436 0.40951,-0.40341 0.54746,-0.70617 0.54746,-1.20147 0,-0.70184 -0.34715,-1.27714 -0.9495,-1.57354 -0.34847,-0.17147 -0.3602,-0.17335 -1.08326,-0.17288 -0.992948,5.3e-4 -1.914904,0.18322 -4.302988,0.85209 -1.660176,0.465 -2.705516,0.71853 -5.735463,1.39108 -1.505387,0.33414 -2.757279,0.62003 -2.781985,0.63529 -0.02474,0.0153 -0.0303,-0.16839 -0.01238,-0.40873 0.212347,-2.84874 0.297638,-3.67262 0.557808,-5.38827 0.272603,-1.79764 0.611944,-3.31982 0.952526,-4.27273 0.255225,-0.71409 0.400937,-0.94035 0.725231,-1.12616 1.037116,-0.59423 3.874259,-1.1823 7.415403,-1.53703 1.703779,-0.17067 2.633448,-0.22907 4.953178,-0.31116 l 1.98086,-0.0701 0.50284,-0.52108 c 0.60436,-0.62628 0.83877,-1.04423 0.87119,-1.55334 0.0291,-0.45769 -0.092,-0.78846 -0.42058,-1.14793 -0.57724,-0.6316 -1.421,-0.84652 -3.09005,-0.7871 -1.34224,0.0478 -2.824451,0.24238 -5.292825,0.69489 -4.460761,0.81777 -5.717538,0.96848 -8.86483,1.06305 -1.018154,0.0306 -1.948101,0.0801 -2.066552,0.10994 -0.141023,0.0356 -0.300443,0.13809 -0.461815,0.29698 -0.517133,0.50921 -0.644202,1.04242 -0.554614,2.3273 0.111702,1.602 0.116758,1.85092 0.05989,2.94747 -0.06514,1.25591 -0.189283,2.32423 -0.418108,3.59808 -0.328348,1.82787 -1.009555,6.66429 -1.590135,11.28962 -0.541859,4.31682 -0.618884,5.29913 -0.591791,7.54691 l 0.01744,1.44582 0.391097,0.39593 c 0.703452,0.71214 1.33306,1.11556 1.950831,1.24998 0.402015,0.0875 0.428191,0.0883 0.765466,0.0243 z"/></g></svg>`,
+                        color: "#4A90D9"
                     }
                 ]
             }
 
         ];
-        /* ============================================================
-           FIN DE LA CONFIGURATION
-           ============================================================ */
     </script>
 
     <style>
         :root {
             --bg-base: #EEF0F8;
-            --surface: rgba(255, 255, 255, 0.72);
-            --surface-s: rgba(255, 255, 255, 0.55);
+            --surface: rgba(255, 255, 255, 0.78);
             --border: rgba(0, 0, 0, 0.07);
-            --border-h: rgba(0, 0, 0, 0.14);
+            --border-h: rgba(0, 0, 0, 0.13);
             --shadow-sm: 0 1px 4px rgba(0, 0, 0, .06), 0 1px 2px rgba(0, 0, 0, .04);
             --shadow-md: 0 4px 24px rgba(0, 0, 0, .08), 0 1px 4px rgba(0, 0, 0, .05);
             --shadow-lg: 0 16px 48px rgba(0, 0, 0, .12), 0 4px 12px rgba(0, 0, 0, .07);
@@ -220,21 +102,19 @@
             --text: #16181F;
             --text-2: #52596A;
             --text-3: #9BA3B2;
-            --radius: 18px;
-            --radius-sm: 11px;
+            --radius: 16px;
             --font: 'DM Sans', sans-serif;
-            --blob1: rgba(99, 130, 255, 0.20);
-            --blob2: rgba(255, 140, 90, 0.16);
-            --blob3: rgba(100, 220, 180, 0.16);
-            --blob4: rgba(200, 100, 240, 0.12);
-            --blob5: rgba(255, 200, 80, 0.13);
+            --blob1: rgba(99, 130, 255, 0.18);
+            --blob2: rgba(255, 100, 60, 0.13);
+            --blob3: rgba(100, 220, 180, 0.13);
+            --blob4: rgba(180, 60, 240, 0.10);
+            --blob5: rgba(255, 200, 80, 0.11);
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
                 --bg-base: #0F1117;
-                --surface: rgba(255, 255, 255, 0.055);
-                --surface-s: rgba(255, 255, 255, 0.04);
+                --surface: rgba(255, 255, 255, 0.058);
                 --border: rgba(255, 255, 255, 0.08);
                 --border-h: rgba(255, 255, 255, 0.16);
                 --shadow-sm: 0 1px 4px rgba(0, 0, 0, .4), 0 1px 2px rgba(0, 0, 0, .3);
@@ -245,11 +125,11 @@
                 --text: #E8EAF0;
                 --text-2: #8C94A8;
                 --text-3: #4E5668;
-                --blob1: rgba(80, 110, 255, 0.26);
-                --blob2: rgba(255, 100, 60, 0.17);
-                --blob3: rgba(40, 200, 150, 0.17);
-                --blob4: rgba(180, 60, 240, 0.17);
-                --blob5: rgba(255, 180, 40, 0.13);
+                --blob1: rgba(80, 110, 255, 0.22);
+                --blob2: rgba(255, 80, 40, 0.14);
+                --blob3: rgba(40, 200, 150, 0.14);
+                --blob4: rgba(160, 50, 240, 0.14);
+                --blob5: rgba(255, 180, 40, 0.11);
             }
         }
 
@@ -278,7 +158,7 @@
             overflow-x: hidden;
         }
 
-        /* ---- Mesh blobs ---- */
+        /* ── Mesh ── */
         .bg-mesh {
             position: fixed;
             inset: 0;
@@ -300,12 +180,11 @@
         }
 
         .bg-mesh::before {
-            width: 600px;
-            height: 600px;
+            width: 580px;
+            height: 580px;
             background: var(--blob1);
             top: -130px;
             left: -110px;
-            animation-duration: 22s;
         }
 
         .bg-mesh::after {
@@ -358,7 +237,7 @@
             }
 
             66% {
-                transform: translate(-18px, 18px) scale(0.97);
+                transform: translate(-18px, 18px) scale(.97);
             }
 
             100% {
@@ -366,18 +245,17 @@
             }
         }
 
-        /* ---- Top stripe ---- */
+        /* ── Stripe ── */
         .stripe {
             width: 100%;
             height: 3px;
             flex-shrink: 0;
-            background: linear-gradient(90deg,
-                    #E55C00, #0057A8, #6B21A8, #DC2626, #0D7D5F, #F46800, #15B8A6, #5CDD8B);
             position: relative;
             z-index: 10;
+            background: linear-gradient(90deg, #E55C00, #CC0000, #1B6CA8, #0057A8, #1565C0, #4A90D9);
         }
 
-        /* ---- Corner elements ---- */
+        /* ── Corners ── */
         .corner {
             position: fixed;
             top: 18px;
@@ -392,13 +270,6 @@
         .corner-right {
             right: 32px;
             text-align: right;
-        }
-
-        .corner-left a {
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .back-btn {
@@ -417,7 +288,7 @@
         }
 
         .back-btn:hover {
-            opacity: .75;
+            opacity: .72;
         }
 
         .back-btn svg {
@@ -432,6 +303,7 @@
             color: var(--primary);
             letter-spacing: -.3px;
             line-height: 1;
+            margin-top: 10px;
         }
 
         .page-sub {
@@ -454,24 +326,30 @@
             margin-top: 3px;
         }
 
-        /* ---- Page ---- */
+        /* ── Page ── */
         .page {
             position: relative;
             z-index: 1;
             width: 100%;
             max-width: 1280px;
-            padding: 90px 40px 80px;
+            padding: 100px 40px 100px;
             display: flex;
             flex-direction: column;
-            gap: 36px;
         }
 
-        /* ---- Section ---- */
+        /* ── Groups container — gap here controls space between sections ── */
+        #groups-container {
+            display: flex;
+            flex-direction: column;
+            gap: 80px;
+        }
+
+        /* ── Section head ── */
         .section-head {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 14px;
+            margin-bottom: 24px;
         }
 
         .section-dot {
@@ -479,12 +357,12 @@
             height: 10px;
             border-radius: 50%;
             background: var(--group-color);
-            flex-shrink: 0;
             box-shadow: 0 0 8px var(--group-color);
+            flex-shrink: 0;
         }
 
         .section-head h2 {
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -498,14 +376,14 @@
             background: var(--border);
         }
 
-        /* ---- Cards grid ---- */
+        /* ── Grid ── */
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 14px;
         }
 
-        /* ---- Service card ---- */
+        /* ── Card — flat, no nested box ── */
         .svc-card {
             background: var(--surface);
             backdrop-filter: blur(18px) saturate(1.3);
@@ -513,18 +391,20 @@
             border: 1px solid var(--border);
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
-            padding: 22px 18px 18px;
+            padding: 28px 20px 22px;
             text-decoration: none;
             color: var(--text);
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
+            align-items: center;
+            gap: 16px;
             position: relative;
             overflow: hidden;
             transition: box-shadow .22s, transform .18s, border-color .22s;
+            text-align: center;
         }
 
+        /* top accent bar on hover */
         .svc-card::before {
             content: '';
             position: absolute;
@@ -535,150 +415,98 @@
             background: var(--card-color, var(--primary));
             transform: scaleX(0);
             transform-origin: left;
-            transition: transform .22s ease;
+            transition: transform .24s ease;
         }
 
         .svc-card:hover {
             box-shadow: var(--shadow-lg);
             transform: translateY(-4px);
-            border-color: var(--border-h);
+            border-color: color-mix(in srgb, var(--card-color, var(--primary)) 30%, var(--border));
         }
 
         .svc-card:hover::before {
             transform: scaleX(1);
         }
 
-        .svc-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            background: color-mix(in srgb, var(--card-color, #888) 12%, var(--surface));
-            border: 1px solid color-mix(in srgb, var(--card-color, #888) 20%, transparent);
+        /* ── Logo — just the image, no wrapper ── */
+        .svc-logo {
+            width: 60px;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
             flex-shrink: 0;
             transition: transform .18s;
         }
 
-        .svc-card:hover .svc-icon {
+        .svc-card:hover .svc-logo {
             transform: scale(1.08);
         }
 
-        .svc-icon svg {
-            width: 22px;
-            height: 22px;
-            fill: var(--card-color, var(--primary));
+        .svc-logo svg {
+            width: 52px;
+            height: 52px;
             display: block;
         }
 
-        .svc-icon img {
-            width: 26px;
-            height: 26px;
+        .svc-logo img {
+            width: 52px;
+            height: 52px;
             object-fit: contain;
             display: block;
         }
 
+        /* simpleicons gère la couleur via l'URL — pas besoin d'inversion */
+
+        /* ── Text ── */
         .svc-info {
-            flex: 1;
-            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
         }
 
-        .svc-name {
-            font-size: 14px;
+        .svc-short {
+            font-size: 15px;
             font-weight: 600;
             color: var(--text);
             line-height: 1.2;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
-        .svc-desc {
-            font-size: 11.5px;
+        .svc-full {
+            font-size: 10.5px;
             color: var(--text-3);
-            margin-top: 3px;
-            line-height: 1.4;
-        }
-
-        .svc-url {
-            font-size: 10px;
-            color: var(--text-3);
-            margin-top: 6px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
             font-family: monospace;
-            opacity: .7;
+            line-height: 1.5;
+            word-break: break-all;
         }
 
-        .svc-arrow {
-            position: absolute;
-            bottom: 14px;
-            right: 14px;
-            font-size: 14px;
-            color: var(--text-3);
-            opacity: 0;
-            transition: opacity .2s, right .18s;
+        /* ── Animations ── */
+        .group-block {
+            animation: fadeIn .4s ease both;
         }
 
-        .svc-card:hover .svc-arrow {
-            opacity: 1;
-            right: 10px;
+        .group-block:nth-child(2) {
+            animation-delay: .07s;
         }
 
-        /* ---- Search bar ---- */
-        .search-wrap {
-            position: sticky;
-            top: 0;
-            z-index: 15;
-            padding: 14px 0 0;
+        .group-block:nth-child(3) {
+            animation-delay: .14s;
         }
 
-        .search-inner {
-            background: var(--surface);
-            backdrop-filter: blur(20px) saturate(1.4);
-            -webkit-backdrop-filter: blur(20px) saturate(1.4);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-md);
-            display: flex;
-            align-items: center;
-            padding: 0 16px;
-            gap: 10px;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .search-inner svg {
-            width: 16px;
-            height: 16px;
-            fill: var(--text-3);
-            flex-shrink: 0;
-        }
-
-        #filter {
-            flex: 1;
-            border: none;
-            outline: none;
-            background: transparent;
-            font-family: var(--font);
-            font-size: 14px;
-            color: var(--text);
-            padding: 14px 0;
-        }
-
-        #filter::placeholder {
-            color: var(--text-3);
-        }
-
-        #filter-count {
-            font-size: 11px;
-            color: var(--text-3);
-            white-space: nowrap;
-        }
-
-        /* ---- Footer credit ---- */
+        /* ── Footer ── */
         .credit {
             position: fixed;
             bottom: 0;
@@ -712,7 +540,7 @@
         }
 
         .credit-link:hover {
-            opacity: .75;
+            opacity: .72;
         }
 
         .credit-link svg {
@@ -721,60 +549,14 @@
             fill: currentColor;
             flex-shrink: 0;
         }
-
-        /* ---- Animations ---- */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .group-block {
-            animation: fadeIn .4s ease both;
-        }
-
-        .group-block:nth-child(2) {
-            animation-delay: .06s;
-        }
-
-        .group-block:nth-child(3) {
-            animation-delay: .12s;
-        }
-
-        .group-block:nth-child(4) {
-            animation-delay: .18s;
-        }
-
-        .group-block:nth-child(5) {
-            animation-delay: .24s;
-        }
-
-        /* hidden during filter */
-        .svc-card[hidden] {
-            display: none;
-        }
-
-        .group-block[data-empty] {
-            display: none;
-        }
     </style>
 </head>
 
 <body>
 
-    <div class="bg-mesh" aria-hidden="true">
-        <span></span><span></span><span></span>
-    </div>
-
+    <div class="bg-mesh" aria-hidden="true"><span></span><span></span><span></span></div>
     <div class="stripe"></div>
 
-    <!-- Top-left -->
     <div class="corner corner-left">
         <a class="back-btn" href="./startpage.html">
             <svg viewBox="0 0 24 24">
@@ -782,37 +564,19 @@
             </svg>
             Accueil
         </a>
-        <div class="page-title" style="margin-top:10px;">🛠️ Tools</div>
-        <div class="page-sub">Liens du laboratoire</div>
+        <div class="page-title">🛠️ CyberEnv Lab</div>
+        <div class="page-sub">sio.lan · 192.168.10.0/24</div>
     </div>
 
-    <!-- Top-right -->
     <div class="corner corner-right">
         <div id="clock">--:--</div>
         <div id="datestamp">---</div>
     </div>
 
     <div class="page">
-
-        <!-- Search / filter -->
-        <div class="search-wrap">
-            <div class="search-inner">
-                <svg viewBox="0 0 24 24">
-                    <path
-                        d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-                </svg>
-                <input id="filter" type="text" placeholder="Filtrer les services…" autocomplete="off"
-                    spellcheck="false" />
-                <span id="filter-count"></span>
-            </div>
-        </div>
-
-        <!-- Groups rendered by JS -->
         <div id="groups-container"></div>
-
     </div>
 
-    <!-- Credit bar -->
     <footer class="credit">
         <span>Created by</span>
         <a class="credit-link" href="https://www.linkedin.com/in/cristianmeyers/" target="_blank" rel="noopener">
@@ -822,97 +586,68 @@
             </svg>
             Cristin Meyers
         </a>
-        <span>· Tous droits réservés</span>
+        <span>·</span>
+        <a class="credit-link" href="https://github.com/cristianmeyers/cyberenv" target="_blank" rel="noopener"
+            style="color:var(--text-2)">
+            <svg viewBox="0 0 24 24">
+                <path
+                    d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+            </svg>
+            cyberenv
+        </a>
     </footer>
 
     <script>
-        /* ---- Render groups from LAB_CONFIG ---- */
-        function renderIcon(icon) {
-            if (!icon) return `<span>🔧</span>`;
-            if (icon.startsWith('img:')) {
-                return `<img src="${icon.slice(4)}" alt="" onerror="this.parentElement.textContent='🔧'"/>`;
-            }
-            if (icon.startsWith('svg:')) {
-                return `<svg viewBox="0 0 24 24"><path d="${icon.slice(4)}"/></svg>`;
-            }
-            // emoji
-            return `<span>${icon}</span>`;
-        }
+        /* Logos via Simple Icons CDN ou SVG inline pour les logos absents */
 
-        function buildCards(items, groupColor) {
-            return items.map(item => {
-                const color = item.color || groupColor;
-                const urlDisplay = item.url.replace(/^https?:\/\//, '');
-                return `
-      <a class="svc-card" href="${item.url}" target="_blank" style="--card-color:${color}"
-         data-name="${item.name.toLowerCase()}" data-desc="${(item.desc || '').toLowerCase()}">
-        <div class="svc-icon">${renderIcon(item.icon)}</div>
-        <div class="svc-info">
-          <div class="svc-name">${item.name}</div>
-          ${item.desc ? `<div class="svc-desc">${item.desc}</div>` : ''}
-          <div class="svc-url">${urlDisplay}</div>
-        </div>
-        <span class="svc-arrow">→</span>
-      </a>`;
-            }).join('');
+        function logoHtml(item) {
+            if (item.svgLogo) return item.svgLogo;
+            if (item.logo) return `<img src="${item.logo}" alt="${item.shortName}"
+    onerror="this.parentElement.innerHTML='<span style=font-size:36px>🔧</span>'"/>`;
+            return `<span style="font-size:36px">🔧</span>`;
         }
 
         function render() {
-            const container = document.getElementById('groups-container');
-            container.innerHTML = LAB_CONFIG.map((group, i) => `
-    <div class="group-block" style="animation-delay:${i * 0.07}s">
-      <div class="section-head">
-        <div class="section-dot" style="--group-color:${group.color}"></div>
-        <h2>${group.name}</h2>
-        <div class="line"></div>
-      </div>
-      <div class="cards-grid">${buildCards(group.items, group.color)}</div>
-    </div>
-  `).join('');
+            document.getElementById('groups-container').innerHTML =
+                LAB_CONFIG.map((group, i) => `
+      <div class="group-block" style="animation-delay:${i * 0.07}s">
+        <div class="section-head">
+          <div class="section-dot" style="--group-color:${group.color}"></div>
+          <h2>${group.name}</h2>
+          <div class="line"></div>
+        </div>
+        <div class="cards-grid">
+          ${group.items.map(item => {
+                    const color = item.color || group.color;
+                    return `
+              <a class="svc-card" href="${item.url}" target="_blank"
+                 style="--card-color:${color}">
+                <div class="svc-logo">
+                  ${logoHtml(item)}
+                </div>
+                <div class="svc-info">
+                  <div class="svc-short">${item.shortName}</div>
+                  <div class="svc-full">${item.fullName}</div>
+                </div>
+              </a>`;
+                }).join('')}
+        </div>
+      </div>`).join('');
         }
 
-        /* ---- Filter logic ---- */
-        function updateFilter(q) {
-            const lower = q.trim().toLowerCase();
-            let total = 0, visible = 0;
-
-            document.querySelectorAll('.group-block').forEach(group => {
-                let groupVisible = 0;
-                group.querySelectorAll('.svc-card').forEach(card => {
-                    total++;
-                    const match = !lower ||
-                        card.dataset.name.includes(lower) ||
-                        card.dataset.desc.includes(lower);
-                    card.hidden = !match;
-                    if (match) { groupVisible++; visible++; }
-                });
-                if (groupVisible === 0) group.setAttribute('data-empty', '');
-                else group.removeAttribute('data-empty');
-            });
-
-            const count = document.getElementById('filter-count');
-            count.textContent = lower ? `${visible} résultat${visible !== 1 ? 's' : ''}` : '';
-        }
-
-        document.getElementById('filter').addEventListener('input', e => updateFilter(e.target.value));
-
-        /* ---- Clock ---- */
         const jours = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-
         function tick() {
-            const now = new Date();
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('clock').textContent = `${h}:${m}`;
+            const n = new Date();
+            document.getElementById('clock').textContent =
+                `${String(n.getHours()).padStart(2, '0')}:${String(n.getMinutes()).padStart(2, '0')}`;
             document.getElementById('datestamp').textContent =
-                `${jours[now.getDay()]} ${now.getDate()} ${mois[now.getMonth()]}`;
+                `${jours[n.getDay()]} ${n.getDate()} ${mois[n.getMonth()]}`;
         }
 
         render();
         tick();
         setInterval(tick, 10000);
-        document.getElementById('filter').focus();
     </script>
 </body>
 
