@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Accueil</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg-base: #EEF0F8;
+      --surface: rgba(255, 255, 255, 0.72);
+      --surface-s: rgba(255, 255, 255, 0.55);
+      --border: rgba(0, 0, 0, 0.07);
+      --border-h: rgba(0, 0, 0, 0.13);
+      --shadow-sm: 0 1px 4px rgba(0, 0, 0, .06), 0 1px 2px rgba(0, 0, 0, .04);
+      --shadow-md: 0 4px 24px rgba(0, 0, 0, .08), 0 1px 4px rgba(0, 0, 0, .05);
+      --shadow-lg: 0 16px 48px rgba(0, 0, 0, .12), 0 4px 12px rgba(0, 0, 0, .07);
+      --primary: #1A6CF0;
+      --primary-l: rgba(26, 108, 240, 0.10);
+      --text: #16181F;
+      --text-2: #52596A;
+      --text-3: #9BA3B2;
+      --radius: 18px;
+      --radius-sm: 11px;
+      --font: 'DM Sans', sans-serif;
+      --blob1: rgba(99, 130, 255, 0.22);
+      --blob2: rgba(255, 140, 90, 0.18);
+      --blob3: rgba(100, 220, 180, 0.18);
+      --blob4: rgba(200, 100, 240, 0.14);
+      --blob5: rgba(255, 200, 80, 0.15);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-base: #0F1117;
+        --surface: rgba(255, 255, 255, 0.055);
+        --surface-s: rgba(255, 255, 255, 0.04);
+        --border: rgba(255, 255, 255, 0.08);
+        --border-h: rgba(255, 255, 255, 0.16);
+        --shadow-sm: 0 1px 4px rgba(0, 0, 0, .4), 0 1px 2px rgba(0, 0, 0, .3);
+        --shadow-md: 0 4px 24px rgba(0, 0, 0, .5), 0 1px 4px rgba(0, 0, 0, .3);
+        --shadow-lg: 0 16px 48px rgba(0, 0, 0, .6), 0 4px 12px rgba(0, 0, 0, .4);
+        --primary: #5B9EFF;
+        --primary-l: rgba(91, 158, 255, 0.13);
+        --text: #E8EAF0;
+        --text-2: #8C94A8;
+        --text-3: #4E5668;
+        --blob1: rgba(80, 110, 255, 0.28);
+        --blob2: rgba(255, 100, 60, 0.18);
+        --blob3: rgba(40, 200, 150, 0.18);
+        --blob4: rgba(180, 60, 240, 0.18);
+        --blob5: rgba(255, 180, 40, 0.14);
+      }
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      background: var(--bg-base);
+      font-family: var(--font);
+      color: var(--text);
+      min-height: 100vh;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ---- Mesh blobs ---- */
+    .bg-mesh {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .bg-mesh::before,
+    .bg-mesh::after,
+    .bg-mesh span:nth-child(1),
+    .bg-mesh span:nth-child(2),
+    .bg-mesh span:nth-child(3) {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      animation: drift 22s ease-in-out infinite alternate;
+    }
+
+    .bg-mesh::before {
+      width: 640px;
+      height: 640px;
+      background: var(--blob1);
+      top: -140px;
+      left: -120px;
+      animation-duration: 22s;
+    }
+
+    .bg-mesh::after {
+      width: 520px;
+      height: 520px;
+      background: var(--blob2);
+      bottom: -120px;
+      right: -100px;
+      animation-duration: 18s;
+      animation-delay: -6s;
+    }
+
+    .bg-mesh span:nth-child(1) {
+      width: 440px;
+      height: 440px;
+      background: var(--blob3);
+      top: 38%;
+      left: 52%;
+      animation-duration: 26s;
+      animation-delay: -10s;
+    }
+
+    .bg-mesh span:nth-child(2) {
+      width: 380px;
+      height: 380px;
+      background: var(--blob4);
+      top: 18%;
+      right: 3%;
+      animation-duration: 20s;
+      animation-delay: -3s;
+    }
+
+    .bg-mesh span:nth-child(3) {
+      width: 320px;
+      height: 320px;
+      background: var(--blob5);
+      bottom: 14%;
+      left: 12%;
+      animation-duration: 30s;
+      animation-delay: -15s;
+    }
+
+    @keyframes drift {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      33% {
+        transform: translate(28px, -22px) scale(1.04);
+      }
+
+      66% {
+        transform: translate(-18px, 18px) scale(0.97);
+      }
+
+      100% {
+        transform: translate(12px, -8px) scale(1.02);
+      }
+    }
+
+    /* ---- Stripe ---- */
+    .stripe {
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg,
+          #D97706, #10A37F, #4285F4, #FF0080,
+          #4D6BFE, #DC2626, #0078D4, #20B2AA, #FF6B35, #16A34A);
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    /* ---- Page wrapper ---- */
+    .page {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1280px;
+      padding: 0 40px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      flex: 1;
+      /* center vertically with a slight downward bias — Google style */
+      justify-content: center;
+      padding-top: 8vh;
+    }
+
+    /* ---- Glass base ---- */
+    .glass {
+      background: var(--surface);
+      backdrop-filter: blur(20px) saturate(1.4);
+      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ---- Header corners — fixed, outside page flow ---- */
+    .corner {
+      position: fixed;
+      top: 18px;
+      z-index: 20;
+      animation: fadeIn .4s ease both;
+    }
+
+    .corner-left {
+      left: 32px;
+    }
+
+    .corner-right {
+      right: 32px;
+      text-align: right;
+    }
+
+    .logo-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--primary);
+      letter-spacing: -.3px;
+      line-height: 1;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 3px;
+    }
+
+    .greeting-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px;
+      background: var(--primary-l);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--primary);
+      margin-top: 8px;
+      border: 1px solid var(--border);
+    }
+
+    #clock {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -1.5px;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    #datestamp {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 3px;
+    }
+
+    /* ---- Search ---- */
+    .search-card {
+      padding: 22px 28px;
+      animation: fadeIn .4s .07s ease both;
+    }
+
+    .search-card label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 11px;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-input-wrap {
+      flex: 1;
+      min-width: 260px;
+      display: flex;
+      align-items: center;
+      background: var(--surface-s);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .search-input-wrap:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-l);
+    }
+
+    .search-icon {
+      padding: 0 16px;
+      color: var(--text-3);
+      font-size: 16px;
+    }
+
+    #search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: var(--font);
+      font-size: 15px;
+      color: var(--text);
+      padding: 14px 12px 14px 0;
+    }
+
+    #search-input::placeholder {
+      color: var(--text-3);
+    }
+
+    .engine-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .engine-pill {
+      padding: 9px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface-s);
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all .18s;
+    }
+
+    .engine-pill.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 10px color-mix(in srgb, var(--primary) 40%, transparent);
+    }
+
+    .engine-pill:hover:not(.active) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .search-btn {
+      padding: 13px 28px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 10px color-mix(in srgb, var(--primary) 40%, transparent);
+      transition: opacity .18s, transform .1s;
+      white-space: nowrap;
+    }
+
+    .search-btn:hover {
+      opacity: .88;
+    }
+
+    .search-btn:active {
+      transform: scale(.97);
+    }
+
+    /* ---- Section head ---- */
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-head h2 {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-3);
+      white-space: nowrap;
+    }
+
+    .section-head .line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ---- AI Grid ---- */
+    .ai-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      /* always 10 columns */
+      gap: 10px;
+      animation: fadeIn .4s .13s ease both;
+    }
+
+    @media (max-width: 900px) {
+      .ai-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .ai-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .ai-card {
+      background: var(--surface);
+      backdrop-filter: blur(16px) saturate(1.3);
+      -webkit-backdrop-filter: blur(16px) saturate(1.3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 20px 12px 16px;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow .22s, transform .18s, border-color .22s;
+      text-align: center;
+    }
+
+    .ai-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--brand);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .22s ease;
+    }
+
+    .ai-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+      border-color: var(--border-h);
+    }
+
+    .ai-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    /* Single logo — no nested box, just the SVG centered */
+    .ai-logo {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform .18s;
+    }
+
+    .ai-card:hover .ai-logo {
+      transform: scale(1.1);
+    }
+
+    .ai-logo svg {
+      width: 36px;
+      height: 36px;
+      display: block;
+    }
+
+    .ai-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .b-claude {
+      --brand: #D97706;
+      --logo-bg: color-mix(in srgb, #D97706 12%, var(--surface));
+    }
+
+    .b-chatgpt {
+      --brand: #10A37F;
+      --logo-bg: color-mix(in srgb, #10A37F 12%, var(--surface));
+    }
+
+    .b-gemini {
+      --brand: #4285F4;
+      --logo-bg: color-mix(in srgb, #4285F4 12%, var(--surface));
+    }
+
+    .b-grok {
+      --brand: #888;
+      --logo-bg: color-mix(in srgb, #888 10%, var(--surface));
+    }
+
+    .b-qwen {
+      --brand: #5B7FFF;
+      --logo-bg: color-mix(in srgb, #5B7FFF 12%, var(--surface));
+    }
+
+    .b-deepseek {
+      --brand: #4D6BFE;
+      --logo-bg: color-mix(in srgb, #4D6BFE 12%, var(--surface));
+    }
+
+    .b-copilot {
+      --brand: #0078D4;
+      --logo-bg: color-mix(in srgb, #0078D4 12%, var(--surface));
+    }
+
+    .b-perplexity {
+      --brand: #20B2AA;
+      --logo-bg: color-mix(in srgb, #20B2AA 12%, var(--surface));
+    }
+
+    .b-mistral {
+      --brand: #FF6B35;
+      --logo-bg: color-mix(in srgb, #FF6B35 12%, var(--surface));
+    }
+
+    .b-meta {
+      --brand: #0082FB;
+      --logo-bg: color-mix(in srgb, #0082FB 12%, var(--surface));
+    }
+
+    /* ---- Shortcuts ---- */
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      /* 9 shortcuts in a row */
+      gap: 8px;
+      animation: fadeIn .4s .2s ease both;
+    }
+
+    @media (max-width: 900px) {
+      .shortcuts-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .shortcuts-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .shortcut {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      padding: 16px 10px;
+      background: var(--surface);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      color: var(--text-2);
+      font-size: 11.5px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      transition: all .18s;
+      text-align: center;
+    }
+
+    .shortcut:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 4px 14px var(--primary-l);
+      transform: translateY(-2px);
+    }
+
+    .shortcut .s-icon {
+      font-size: 20px;
+    }
+
+    /* Tools shortcut — special */
+    .shortcut-tools {
+      background: color-mix(in srgb, var(--primary) 8%, var(--surface));
+      border-color: color-mix(in srgb, var(--primary) 25%, transparent);
+      color: var(--primary);
+    }
+
+    .shortcut-tools:hover {
+      background: color-mix(in srgb, var(--primary) 15%, var(--surface));
+    }
+
+    /* ---- Footer / credit ---- */
+    .credit {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      font-size: 11.5px;
+      color: var(--text-3);
+      background: transparent;
+      pointer-events: none;
+    }
+
+    .credit>*,
+    .credit a {
+      pointer-events: auto;
+    }
+
+    .credit-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity .18s;
+    }
+
+    .credit-link:hover {
+      opacity: .75;
+    }
+
+    .credit-link svg {
+      width: 13px;
+      height: 13px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* ---- Animations ---- */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="bg-mesh" aria-hidden="true">
+    <span></span><span></span><span></span>
+  </div>
+
+  <div class="stripe"></div>
+
+  <!-- Corner top-left: title + greeting -->
+  <div class="corner corner-left">
+    <div class="logo-title">Page d'accueil</div>
+    <div class="logo-sub">Votre portail personnel</div>
+    <div class="greeting-pill" id="greeting">👋 Bonjour</div>
+  </div>
+
+  <!-- Corner top-right: clock + date -->
+  <div class="corner corner-right">
+    <div id="clock">--:--</div>
+    <div id="datestamp">---</div>
+  </div>
+
+  <div class="page">
+
+    <!-- Recherche -->
+    <div class="glass search-card">
+      <label>Rechercher sur le web</label>
+      <div class="search-row">
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input id="search-input" type="text" placeholder="Tapez votre recherche…" autocomplete="off"
+            spellcheck="false" />
+        </div>
+        <div class="engine-pills">
+          <button class="engine-pill active" data-engine="google">Google</button>
+          <button class="engine-pill" data-engine="ddg">DDG</button>
+          <button class="engine-pill" data-engine="bing">Bing</button>
+          <button class="engine-pill" data-engine="brave">Brave</button>
+        </div>
+        <button class="search-btn" onclick="doSearch()">Rechercher</button>
+      </div>
+    </div>
+
+    <!-- IA -->
+    <div>
+      <div class="section-head">
+        <h2>Intelligence Artificielle</h2>
+        <div class="line"></div>
+      </div>
+      <div class="ai-grid">
+
+        <a class="ai-card b-claude" href="https://claude.ai" target="_blank">
+          <div class="ai-logo">
+            <svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20.5 2C10.3 2 2 10.3 2 20.5S10.3 39 20.5 39 39 30.7 39 20.5 30.7 2 20.5 2z" fill="#D97706" />
+              <path
+                d="M27 13.5c-1.1-3.2-2.9-4.8-5.4-4.8-1.6 0-3 .7-4 2-1 1.4-1.5 3.2-1.5 5.5 0 1 .1 2 .3 3.1l2.6 9.6c.2.7.7 1.1 1.4 1.1.6 0 1-.3 1.3-.9l.4-1.1 2.5-9.3c.3-1 .5-2 .5-3 0-.8-.1-1.6-.4-2.2z"
+                fill="white" />
+              <path
+                d="M16 23l-2.6-9.6c-.3-1-.4-2-.4-2.8 0-1.2.3-2.3.8-3.2-1.4.9-2.5 2.3-3.1 4.1-.6 1.8-.6 3.6 0 5.4l2.7 7.8c.3.8.7 1.2 1.3 1.2.5 0 .9-.3 1.2-.9l.1-.2V23z"
+                fill="white" opacity=".65" />
+            </svg>
+          </div>
+          <div class="ai-name">Claude</div>
+        </a>
+
+        <a class="ai-card b-chatgpt" href="https://chat.openai.com" target="_blank">
+          <div class="ai-logo">
+            <svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="20.5" cy="20.5" r="18.5" fill="#10A37F" />
+              <path
+                d="M30.2 18.4a7.6 7.6 0 00-.65-6.24 7.7 7.7 0 00-8.28-3.7 7.7 7.7 0 00-5.79-2.58 7.7 7.7 0 00-7.33 5.33 7.7 7.7 0 00-5.13 3.73 7.73 7.73 0 00.95 9.05 7.6 7.6 0 00.65 6.24 7.7 7.7 0 008.29 3.7 7.7 7.7 0 005.78 2.58 7.71 7.71 0 007.34-5.34 7.7 7.7 0 005.13-3.73 7.73 7.73 0 00-.96-9.04zM18.74 29.47a5.72 5.72 0 01-3.67-1.32l.18-.1 6.1-3.52a1 1 0 00.5-.87v-8.59l2.58 1.49v6.95a5.74 5.74 0 01-5.69 5.96zM6.47 24.2a5.71 5.71 0 01-.68-3.85l.18.11 6.1 3.52a1 1 0 001 0l7.45-4.3v2.98l-6.18 3.57A5.74 5.74 0 016.47 24.2zm-1.6-13.25a5.7 5.7 0 012.97-2.51v7.2a1 1 0 00.5.87l7.44 4.3-2.58 1.49L7.77 19a5.74 5.74 0 01-.88-7.05zm21.17 4.93l-7.44-4.3 2.58-1.48 6.17 3.56a5.73 5.73 0 01-.88 9.56v-7.2a1 1 0 00-.43-.14zm2.57-3.87l-.18-.11-6.1-3.52a1 1 0 00-1 0L14 12.72v-2.98l6.18-3.57a5.73 5.73 0 018.44 5.88zm-16.16 5.3l-2.58-1.49v-6.95a5.73 5.73 0 019.37-4.4l-.18.1-6.1 3.52a1 1 0 00-.5.87l-.01 8.35z"
+                fill="white" />
+            </svg>
+          </div>
+          <div class="ai-name">ChatGPT</div>
+        </a>
+
+        <a class="ai-card b-gemini" href="https://gemini.google.com" target="_blank">
+          <div class="ai-logo">
+            <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M14 28C14 26.06 13.63 24.24 12.88 22.54 12.16 20.84 11.17 19.36 9.91 18.1 8.65 16.84 7.16 15.84 5.46 15.12 3.76 14.37 1.94 14 0 14c1.94 0 3.76-.36 5.46-1.09 1.7-.74 3.19-1.74 4.45-3 1.26-1.26 2.25-2.74 2.97-4.44C13.63 3.76 14 1.94 14 0c0 1.94.36 3.76 1.09 5.46.74 1.7 1.74 3.18 3 4.44 1.26 1.26 2.74 2.26 4.44 3C24.23 13.64 26.06 14 28 14c-1.94 0-3.77.37-5.47 1.12-1.7.74-3.18 1.74-4.44 3-1.26 1.26-2.26 2.74-3 4.44C14.36 24.23 14 26.06 14 28z"
+                fill="url(#gg)" />
+              <defs>
+                <linearGradient id="gg" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#4285F4" />
+                  <stop offset="50%" stop-color="#9B72CB" />
+                  <stop offset="100%" stop-color="#D96570" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div class="ai-name">Gemini</div>
+        </a>
+
+        <a class="ai-card b-grok" href="https://grok.com" target="_blank">
+          <div class="ai-logo">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13.5 12L20 4h-2.5L12 10.5 7.5 4H3l7 9.5L3 21h2.5L12 14l5 7H21l-7.5-9z" fill="currentColor"
+                style="fill:var(--text)" />
+            </svg>
+          </div>
+          <div class="ai-name">Grok</div>
+        </a>
+
+        <a class="ai-card b-qwen" href="https://chat.qwen.ai" target="_blank">
+          <div class="ai-logo">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="14" fill="#5B7FFF" />
+              <text x="16" y="21.5" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700"
+                fill="white">Q</text>
+            </svg>
+          </div>
+          <div class="ai-name">Qwen</div>
+        </a>
+
+        <a class="ai-card b-deepseek" href="https://chat.deepseek.com" target="_blank">
+          <div class="ai-logo">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="14" fill="#4D6BFE" />
+              <path d="M10 16a6 6 0 1112 0" stroke="white" stroke-width="2" stroke-linecap="round" />
+              <circle cx="16" cy="16" r="2.5" fill="white" />
+              <circle cx="22" cy="16" r="1.5" fill="white" />
+            </svg>
+          </div>
+          <div class="ai-name">DeepSeek</div>
+        </a>
+
+        <a class="ai-card b-copilot" href="https://copilot.microsoft.com" target="_blank">
+          <div class="ai-logo">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 4C9.37 4 4 9.37 4 16s5.37 12 12 12 12-5.37 12-12S22.63 4 16 4z" fill="#0078D4" />
+              <path d="M16 10a6 6 0 000 12V10z" fill="white" />
+              <path d="M16 10a6 6 0 016 6h-6V10z" fill="white" opacity=".55" />
+            </svg>
+          </div>
+          <div class="ai-name">Copilot</div>
+        </a>
+
+        <a class="ai-card b-perplexity" href="https://www.perplexity.ai" target="_blank">
+          <div class="ai-logo">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="14" fill="#1A9E98" />
+              <path d="M16 7v18M9 11l7-4 7 4M9 21l7 4 7-4M9 11v10M23 11v10" stroke="white" stroke-width="1.6"
+                stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <div class="ai-name">Perplexity</div>
+        </a>
+
+        <a class="ai-card b-mistral" href="https://chat.mistral.ai" target="_blank">
+          <div class="ai-logo">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="14" fill="#FF6B35" />
+              <rect x="7" y="10" width="4" height="4" rx="1" fill="white" />
+              <rect x="14" y="10" width="4" height="4" rx="1" fill="white" />
+              <rect x="21" y="10" width="4" height="4" rx="1" fill="white" />
+              <rect x="7" y="17" width="4" height="5" rx="1" fill="white" opacity=".65" />
+              <rect x="14" y="17" width="4" height="5" rx="1" fill="white" opacity=".65" />
+              <rect x="21" y="17" width="4" height="5" rx="1" fill="white" opacity=".65" />
+            </svg>
+          </div>
+          <div class="ai-name">Mistral 🇫🇷</div>
+        </a>
+
+        <a class="ai-card b-meta" href="https://meta.ai" target="_blank">
+          <div class="ai-logo">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="14" fill="#0082FB" />
+              <path
+                d="M6.5 20c0-2.4 1.1-5 2.9-6.8 1-1.1 2.2-1.7 3.4-1.7 1.5 0 2.6 1 3.7 2.7l1.2 2 1.2-1.9c.9-1.3 2-2 3.2-2 1.1 0 2.2.6 3.1 1.6"
+                stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none" />
+              <path
+                d="M6.5 20c0 2 1.3 3.2 3 3.2 1.3 0 2.4-.7 3.5-2.3.7-.9 1.3-2 1.7-3 .5 1 1.1 2.1 1.8 3 1.1 1.6 2.2 2.3 3.5 2.3 1.7 0 3-1.2 3-3.2"
+                stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none" />
+            </svg>
+          </div>
+          <div class="ai-name">Meta AI</div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Raccourcis -->
+    <div>
+      <div class="section-head">
+        <h2>Raccourcis</h2>
+        <div class="line"></div>
+      </div>
+      <div class="shortcuts-grid">
+
+        <a class="shortcut" href="https://github.com" target="_blank">
+          <span class="s-icon">🐙</span>GitHub
+        </a>
+
+        <a class="shortcut" href="https://www.exploit-db.com" target="_blank">
+          <span class="s-icon">💣</span>Exploit-DB
+        </a>
+
+        <a class="shortcut" href="https://cve.mitre.org" target="_blank">
+          <span class="s-icon">🔓</span>CVE
+        </a>
+
+        <a class="shortcut" href="https://tryhackme.com" target="_blank">
+          <span class="s-icon">🎯</span>TryHackMe
+        </a>
+
+        <a class="shortcut" href="https://hackthebox.com" target="_blank">
+          <span class="s-icon">📦</span>HackTheBox
+        </a>
+
+        <a class="shortcut" href="https://www.root-me.org" target="_blank">
+          <span class="s-icon">🌱</span>Root-Me
+        </a>
+
+        <a class="shortcut" href="https://www.virustotal.com" target="_blank">
+          <span class="s-icon">🔬</span>VirusTotal
+        </a>
+
+        <a class="shortcut" href="https://gchq.github.io/CyberChef/" target="_blank">
+          <span class="s-icon">🍳</span>CyberChef
+        </a>
+
+        <a class="shortcut shortcut-tools" href="./tools.html">
+          <span class="s-icon">🛠️</span>Tools
+        </a>
+
+      </div>
+    </div>
+
+  </div><!-- end .page -->
+
+  <!-- Credit bar pinned to bottom -->
+  <footer class="credit">
+    <span>Created by</span>
+    <a class="credit-link" href="https://www.linkedin.com/in/cristianmeyers/" target="_blank" rel="noopener">
+      <!-- LinkedIn icon -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+      </svg>
+      Cristin Meyers
+    </a>
+    <span>· Tous droits réservés</span>
+  </footer>
+
+  <script>
+    const engines = {
+      google: q => `https://www.google.com/search?q=${encodeURIComponent(q)}`,
+      ddg: q => `https://duckduckgo.com/?q=${encodeURIComponent(q)}`,
+      bing: q => `https://www.bing.com/search?q=${encodeURIComponent(q)}`,
+      brave: q => `https://search.brave.com/search?q=${encodeURIComponent(q)}`,
+    };
+    let activeEngine = 'google';
+
+    document.querySelectorAll('.engine-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.engine-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeEngine = btn.dataset.engine;
+      });
+    });
+
+    function doSearch() {
+      const q = document.getElementById('search-input').value.trim();
+      if (!q) return;
+      window.location.href = engines[activeEngine](q);
+    }
+
+    document.getElementById('search-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doSearch();
+    });
+
+    const jours = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+
+    function tick() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('clock').textContent = `${h}:${m}`;
+      document.getElementById('datestamp').textContent =
+        `${jours[now.getDay()]} ${now.getDate()} ${mois[now.getMonth()]}`;
+      const hr = now.getHours();
+      const g = hr < 6 ? '🌙 Bonne nuit' : hr < 12 ? '☀️ Bonjour !' : hr < 18 ? '🌤️ Bon après-midi' : '🌆 Bonsoir !';
+      document.getElementById('greeting').textContent = g;
+    }
+
+    tick();
+    setInterval(tick, 10000);
+    document.getElementById('search-input').focus();
+  </script>
+</body>
+
+</html>
