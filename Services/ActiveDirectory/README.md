@@ -26,8 +26,8 @@ sudo nano /etc/hosts
 **Contenu à insérer :**
 
 ```text
-127.0.0.1 localhost
-192.168.1.10 sioad.sio.lan sioad
+127.0.0.1     localhost
+192.168.10.4  sioad.sio.lan sioad
 
 ```
 
@@ -36,7 +36,7 @@ sudo nano /etc/hosts
 Assurez-vous d'utiliser un DNS externe (comme 8.8.8.8) au début pour permettre le téléchargement des dépôts.
 
 ```bash
-sudo nano /etc/netplan/00-installer-config.yaml
+sudo nano /etc/netplan/00-netconfig.yaml
 
 ```
 
@@ -48,10 +48,10 @@ network:
   ethernets:
     ens18: # À vérifier avec 'ip a'
       addresses:
-        - 192.168.1.10/24
+        - 192.168.10.4/24
       routes:
         - to: default
-          via: 192.168.1.1
+          via: 192.168.10.254
       nameservers:
         addresses: [8.8.8.8, 1.1.1.1]
 ```
