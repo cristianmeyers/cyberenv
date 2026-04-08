@@ -1,0 +1,13 @@
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    ens18:
+      dhcp4: no
+      addresses: [192.168.10.8/24]
+      nameservers:
+        addresses: [192.168.10.4]
+        search: [sio.lan]
+      routes:
+        - to: default
+          via: 192.168.10.254

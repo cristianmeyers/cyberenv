@@ -152,7 +152,7 @@ Testez si l'administrateur peut obtenir un ticket Kerberos valide.
 
 ```bash
 echo "--- TEST KERBEROS ---"
-echo "sioPBA29200" | kinit administrator@SIO.LAN
+echo "MotDePasse" | kinit administrator@SIO.LAN
 klist
 
 ```
@@ -160,3 +160,17 @@ klist
 ### Mise à jour finale du réseau
 
 Maintenant que le service est opérationnel, modifiez votre fichier Netplan pour que le serveur n'utilise que lui-même comme DNS (`addresses: [127.0.0.1]`) et appliquez de nouveau la configuration.
+
+```yaml
+network:
+  version: 2
+  ethernets:
+    ens18: # À vérifier avec 'ip a'
+      addresses:
+        - 192.168.10.4/24
+      routes:
+        - to: default
+          via: 192.168.10.254
+      nameservers:
+        addresses: [127.0.0.1] # <-- ici !
+```
