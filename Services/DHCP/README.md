@@ -137,7 +137,7 @@ C'est ici que l'on définit la distribution des adresses IP.
 
 ```bash
 sudo touch /var/log/kea-dhcp4.log
-sudo chown kea:kea /var/log/kea-dhcp4.log
+sudo chown _kea:_kea /var/log/kea-dhcp4.log
 sudo systemctl restart kea-ctrl-agent kea-dhcp4-server
 sudo systemctl enable kea-ctrl-agent kea-dhcp4-server
 
