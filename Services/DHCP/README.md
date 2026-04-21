@@ -6,7 +6,7 @@ Ce guide détaille l'installation et la sécurisation du service DHCP pour le pr
 
 - **Hostname :** `siodhcp`
 - **IP Statique :** `192.168.10.2`
-- **Passerelle (Gateway) :** `192.168.10.1`
+- **Passerelle (Gateway) :** `192.168.10.254`
 - **DNS Primaire (AD) :** `192.168.10.4`
 - **Domaine :** `sio.lan`
 - **Plage d'adresses (Pool) :** `192.168.10.50` - `192.168.10.150`
@@ -36,7 +36,7 @@ network:
         - 192.168.10.2/24
       routes:
         - to: default
-          via: 192.168.10.1
+          via: 192.168.10.254
       nameservers:
         addresses: [192.168.10.4, 8.8.8.8]
         search: [sio.lan]

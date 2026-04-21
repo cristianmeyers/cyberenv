@@ -1,0 +1,38 @@
+/interface ethernet
+set [ find default-name=ether1 ] name=WAN comment="Internet Access"
+set [ find default-name=ether2 ] name=trunk1 comment="Trunk Switch 1"
+set [ find default-name=ether3 ] name=trunk2 comment="Trunk Switch 2"
+set [ find default-name=ether4 ] name=access-ap comment="Access Port AP VLAN 40"
+
+/interface bridge add name=bridge-vlans vlan-filtering=yes
+
+/interface bridge port
+add bridge=bridge-vlans interface=trunk1 frame-types=admit-only-vlan-tagged
+add bridge=bridge-vlans interface=trunk2 frame-types=admit-only-vlan-tagged
+add bridge=bridge-vlans interface=access-ap pvid=40 frame-types=admit-only-untagged-and-priority-tagged
+
+/interface bridge vlan
+add bridge=bridge-vlans tagged=trunk1,trunk2,bridge-vlans vlan-ids=10
+add bridge=bridge-vlans tagged=trunk1,trunk2,bridge-vlans vlan-ids=20
+add bridge=bridge-vlans tagged=trunk1,trunk2,bridge-vlans vlan-ids=30
+add bridge=bridge-vlans tagged=trunk1,trunk2,bridge-vlans untagged=access-ap vlan-ids=40
+
+/interface vlan
+add interface=bridge-vlans name=vlan10 vlan-id=10
+add interface=bridge-vlans name=vlan20 vlan-id=20
+add interface=bridge-vlans name=vlan30 vlan-id=30
+add interface=bridge-vlans name=vlan40 vlan-id=40
+
+/ip address
+add address=192.168.10.1/24 interface=vlan10
+add address=192.168.20.1/24 interface=vlan20
+add address=192.168.30.1/24 interface=vlan30
+add address=192.168.40.1/24 interface=vlan40
+
+/ip dhcp-client add interface=WAN
+
+/ip firewall nat
+add action=masquerade chain=srcnat out-interface=WAN src-address=192.168.30.0/24 comment="Acces Internet Admin"
+
+/system backup save name=routeur-lab-vlan-config.backup
+/export hide-sensitive file=routeur-lab-vlan-export

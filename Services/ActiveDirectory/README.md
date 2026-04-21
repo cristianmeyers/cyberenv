@@ -26,8 +26,8 @@ sudo nano /etc/hosts
 **Contenu à insérer :**
 
 ```text
-127.0.0.1 localhost
-192.168.1.10 sioad.sio.lan sioad
+127.0.0.1     localhost
+192.168.10.4  sioad.sio.lan sioad
 
 ```
 
@@ -36,7 +36,7 @@ sudo nano /etc/hosts
 Assurez-vous d'utiliser un DNS externe (comme 8.8.8.8) au début pour permettre le téléchargement des dépôts.
 
 ```bash
-sudo nano /etc/netplan/00-installer-config.yaml
+sudo nano /etc/netplan/00-netconfig.yaml
 
 ```
 
@@ -48,10 +48,10 @@ network:
   ethernets:
     ens18: # À vérifier avec 'ip a'
       addresses:
-        - 192.168.1.10/24
+        - 192.168.10.4/24
       routes:
         - to: default
-          via: 192.168.1.1
+          via: 192.168.10.254
       nameservers:
         addresses: [8.8.8.8, 1.1.1.1]
 ```
@@ -152,7 +152,7 @@ Testez si l'administrateur peut obtenir un ticket Kerberos valide.
 
 ```bash
 echo "--- TEST KERBEROS ---"
-echo "sioPBA29200" | kinit administrator@SIO.LAN
+echo "MotDePasse" | kinit administrator@SIO.LAN
 klist
 
 ```
@@ -160,3 +160,17 @@ klist
 ### Mise à jour finale du réseau
 
 Maintenant que le service est opérationnel, modifiez votre fichier Netplan pour que le serveur n'utilise que lui-même comme DNS (`addresses: [127.0.0.1]`) et appliquez de nouveau la configuration.
+
+```yaml
+network:
+  version: 2
+  ethernets:
+    ens18: # À vérifier avec 'ip a'
+      addresses:
+        - 192.168.10.4/24
+      routes:
+        - to: default
+          via: 192.168.10.254
+      nameservers:
+        addresses: [127.0.0.1] # <-- ici !
+```

@@ -8,15 +8,15 @@ Ce dépôt documente la configuration et le déploiement du serveur de base de d
 
 ### 📌 Spécifications Réseau
 
-| Paramètre                 | Valeur                   |
-| ------------------------- | ------------------------ |
-| **Hostname**              | `siodb`                  |
-| **FQDN**                  | `siodb.sio.lan`          |
-| **Adresse IP**            | `192.168.10.5`           |
-| **Masque de sous-réseau** | `255.255.255.0` (/24)    |
-| **Passerelle**            | `192.168.10.1` (OpenWRT) |
-| **DNS Primaire**          | `192.168.10.4` (sioad)   |
-| **Domaine**               | `sio.lan`                |
+| Paramètre                 | Valeur                 |
+| ------------------------- | ---------------------- |
+| **Hostname**              | `siodb`                |
+| **FQDN**                  | `siodb.sio.lan`        |
+| **Adresse IP**            | `192.168.10.5`         |
+| **Masque de sous-réseau** | `255.255.255.0` (/24)  |
+| **Passerelle**            | `192.168.10.254`       |
+| **DNS Primaire**          | `192.168.10.4` (sioad) |
+| **Domaine**               | `sio.lan`              |
 
 ## 🛠️ Configuration du Système
 
@@ -27,7 +27,7 @@ network:
   version: 2
   renderer: networkd
   ethernets:
-    enp0s1:
+    ens18:
       dhcp4: no
       addresses: [192.168.10.5/24]
       nameservers:
@@ -35,7 +35,7 @@ network:
         search: [sio.lan]
       routes:
         - to: default
-          via: 192.168.10.1
+          via: 192.168.10.254
 ```
 
 ### 2. `/etc/hosts`
@@ -45,9 +45,8 @@ network:
 127.0.1.1       siodb.sio.lan    siodb
 
 # Infrastructure SIO
-192.168.10.4    sioad.sio.lan    sioad
 192.168.10.2    siodhcp.sio.lan  siodhcp
-192.168.10.1    siogw.sio.lan    siogw
+192.168.10.4    sioad.sio.lan    sioad
 192.168.10.6    siolnx.sio.lan   siolnx
 ```
 
@@ -83,38 +82,6 @@ require-secure-transport = OFF
 sudo systemctl restart mariadb
 ```
 
-### 3. Bases de Données & Utilisateurs
-
-| Service     | Base de données | Utilisateur | Accès       |
-| ----------- | --------------- | ----------- | ----------- |
-| **GLPI**    | `glpidb`        | `sio@%`     | ✅ Actif    |
-| **Wiki.js** | `wikidb`        | `sio@%`     | ✅ Actif    |
-| Nextcloud   | `nextclouddb`   | `nc_user@%` | ⏳ Planifié |
-
-```sql
--- Bases de données
-CREATE DATABASE glpidb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE DATABASE wikidb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- Utilisateur unique pour les deux services
-CREATE USER 'sio'@'%' IDENTIFIED BY 'sioPBA29200';
-GRANT ALL PRIVILEGES ON glpidb.* TO 'sio'@'%';
-GRANT ALL PRIVILEGES ON wikidb.* TO 'sio'@'%';
-FLUSH PRIVILEGES;
-```
-
-### 4. Vérification
-
-```sql
--- Vérifier les utilisateurs et permissions
-SELECT user, host FROM mysql.user WHERE user='sio';
-SHOW GRANTS FOR 'sio'@'%';
-
--- Vérifier le SSL Zero-Config
-SHOW VARIABLES LIKE 'have_ssl';
-SHOW VARIABLES LIKE 'require_secure_transport';
-```
-
 ## 🔍 Tests de Connectivité
 
 ### Depuis siolnx (serveur GLPI/Wiki.js)
@@ -123,8 +90,6 @@ SHOW VARIABLES LIKE 'require_secure_transport';
 # Test de connexion simple
 mysql -h 192.168.10.5 -u sio -psioPBA29200 glpidb
 
-# Test de connexion avec SSL explicite (client mariadb 11.4+)
-mysql -h 192.168.10.5 -u sio -psioPBA29200 -e "STATUS" | grep SSL
 ```
 
 ### Depuis Windows (PowerShell)
