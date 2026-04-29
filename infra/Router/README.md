@@ -2,8 +2,6 @@
 
 Configuration **Routeur CHR** - RouterOS **7.20.4**
 
-> ⚠️ Version à vérifier - Document de référence interne
-
 ## 1. Architecture
 
 - **Routeur** → Internet + routage inter-VLAN en temps normal (master VRRP, priority 100)
@@ -14,12 +12,11 @@ Configuration **Routeur CHR** - RouterOS **7.20.4**
 
 ## 2. Plan d'Adressage
 
-| Équipement        | VLAN 10        | VLAN 20        | VLAN 30        | VLAN 40        |
-| ----------------- | -------------- | -------------- | -------------- | -------------- |
-| IP virtuelle VRRP | 192.168.10.1   | 192.168.20.1   | 192.168.30.1   | -              |
-| Routeur (master)  | 192.168.10.254 | 192.168.20.254 | 192.168.30.254 | 192.168.40.254 |
-| S1 (backup 1)     | 192.168.10.253 | 192.168.20.253 | 192.168.30.253 | 192.168.40.253 |
-| S2 (backup 2)     | 192.168.10.252 | 192.168.20.252 | 192.168.30.252 | 192.168.40.252 |
+| Équipement       | VLAN 10        | VLAN 20        | VLAN 30        | VLAN 40        |
+| ---------------- | -------------- | -------------- | -------------- | -------------- |
+| Routeur (master) | 192.168.10.254 | 192.168.20.254 | 192.168.30.254 | 192.168.40.254 |
+| S1 (backup 1)    | 192.168.10.253 | 192.168.20.253 | 192.168.30.253 | 192.168.40.253 |
+| S2 (backup 2)    | 192.168.10.252 | 192.168.20.252 | 192.168.30.252 | 192.168.40.252 |
 
 ## 3. Résumé Général du Design Réseau
 
@@ -97,18 +94,7 @@ add address=192.168.40.254/24 interface=vlan40
 /ip dhcp-client add interface=WAN
 ```
 
-## 7. VRRP (Master, priority 100)
-
-> VRRP uniquement sur les VLANs filaires 10, 20, 30. Le VLAN 40 (Wi-Fi) n'en a pas besoin car l'AP est branché directement sur le routeur - si le routeur tombe, le Wi-Fi tombe aussi.
-
-```bash
-/interface vrrp
-add name=vrrp-vlan10 interface=vlan10 vrid=10 priority=100 authentication=ah password=secret
-add name=vrrp-vlan20 interface=vlan20 vrid=20 priority=100 authentication=ah password=secret
-add name=vrrp-vlan30 interface=vlan30 vrid=30 priority=100 authentication=ah password=secret
-```
-
-## 8. NAT (Sortie Internet)
+## 7. NAT (Sortie Internet)
 
 Une seule règle NAT active - seul le VLAN 30 (ADMIN) a accès à Internet :
 
@@ -117,7 +103,7 @@ Une seule règle NAT active - seul le VLAN 30 (ADMIN) a accès à Internet :
 add action=masquerade chain=srcnat out-interface=WAN src-address=192.168.30.0/24 comment="Acces Internet Admin"
 ```
 
-## 9. État Actuel du Routage et de la Sécurité
+## 8. État Actuel du Routage et de la Sécurité
 
 | VLAN             | Accès Inter-VLAN | Accès Internet   | Commentaire                   |
 | ---------------- | ---------------- | ---------------- | ----------------------------- |
@@ -126,7 +112,7 @@ add action=masquerade chain=srcnat out-interface=WAN src-address=192.168.30.0/24
 | VLAN30 (ADMIN)   | DNS seulement    | Oui (masquerade) | Seul VLAN avec Internet       |
 | VLAN40 (AP/WIFI) | DNS seulement    | Non              | Passerelle routeur uniquement |
 
-## 10. Ce qu'il manque / À ajouter selon les besoins futurs
+## 9. Ce qu'il manque / À ajouter selon les besoins futurs
 
 1. **Règles firewall forward** pour autoriser le trafic souhaité (ex: VLAN40 → Internet, ADMIN → serveurs)
 2. **Règles NAT masquerade** supplémentaires pour les autres VLANs si besoin d'Internet
@@ -135,7 +121,7 @@ add action=masquerade chain=srcnat out-interface=WAN src-address=192.168.30.0/24
 5. **Serveurs DHCP** (pour distribuer les IPs automatiquement sur les VLANs 10, 20, 30, 40)
 6. **Queues / QoS** si limitation de bande passante nécessaire
 
-## 11. Sauvegarde de la Configuration
+## 10. Sauvegarde de la Configuration
 
 ```bash
 /system backup save name=routeur-lab-vlan-config.backup

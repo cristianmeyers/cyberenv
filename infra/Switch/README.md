@@ -15,12 +15,11 @@ Configuration **Switch S1 & S2** - RouterOS **7.20.4**
 
 ## 2. Plan d'Adressage
 
-| Équipement        | VLAN 10        | VLAN 20        | VLAN 30        | VLAN 40        |
-| ----------------- | -------------- | -------------- | -------------- | -------------- |
-| IP virtuelle VRRP | 192.168.10.1   | 192.168.20.1   | 192.168.30.1   | —              |
-| Routeur (master)  | 192.168.10.254 | 192.168.20.254 | 192.168.30.254 | 192.168.40.254 |
-| S1 (backup 1)     | 192.168.10.253 | 192.168.20.253 | 192.168.30.253 | 192.168.40.253 |
-| S2 (backup 2)     | 192.168.10.252 | 192.168.20.252 | 192.168.30.252 | 192.168.40.252 |
+| Équipement       | VLAN 10        | VLAN 20        | VLAN 30        | VLAN 40        |
+| ---------------- | -------------- | -------------- | -------------- | -------------- |
+| Routeur (master) | 192.168.10.254 | 192.168.20.254 | 192.168.30.254 | 192.168.40.254 |
+| S1 (backup 1)    | 192.168.10.253 | 192.168.20.253 | 192.168.30.253 | 192.168.40.253 |
+| S2 (backup 2)    | 192.168.10.252 | 192.168.20.252 | 192.168.30.252 | 192.168.40.252 |
 
 ## 3. Schéma des Connexions Physiques
 
@@ -130,15 +129,6 @@ add address=192.168.30.253/24 interface=vlan30 comment=ADMIN
 add address=192.168.40.253/24 interface=vlan40 comment=WIFI
 ```
 
-#### VRRP (backup priority 90 — VLANs filaires uniquement)
-
-```bash
-/interface vrrp
-add name=vrrp-vlan10 interface=vlan10 vrid=10 priority=90 authentication=ah password=secret
-add name=vrrp-vlan20 interface=vlan20 vrid=20 priority=90 authentication=ah password=secret
-add name=vrrp-vlan30 interface=vlan30 vrid=30 priority=90 authentication=ah password=secret
-```
-
 ## 6. Switch S2
 
 **Emplacement :** Baie | **Modèle :** MikroTik | **Ports :** 24
@@ -216,15 +206,6 @@ add address=192.168.10.252/24 interface=vlan10 comment=SERVERS
 add address=192.168.20.252/24 interface=vlan20 comment=BACKUP
 add address=192.168.30.252/24 interface=vlan30 comment=ADMIN
 add address=192.168.40.252/24 interface=vlan40 comment=WIFI
-```
-
-#### VRRP (backup priority 80 — VLANs filaires uniquement)
-
-```bash
-/interface vrrp
-add name=vrrp-vlan10 interface=vlan10 vrid=10 priority=80 authentication=ah password=secret
-add name=vrrp-vlan20 interface=vlan20 vrid=20 priority=80 authentication=ah password=secret
-add name=vrrp-vlan30 interface=vlan30 vrid=30 priority=80 authentication=ah password=secret
 ```
 
 ## 7. Router (R) — Ports de référence
